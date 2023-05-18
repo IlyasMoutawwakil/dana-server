@@ -16,13 +16,23 @@
 
 module.exports = {
   server: {
-    ip: 'localhost',
-    port: 7000
+    ip: "localhost",
+    port: 7000,
   },
-  adminUser: {
-    name: 'admin',
-    password: 'admin',
-    email: 'yourEmail@yourDomain.com'
-  },
-  secureCookie: false
-}
+  adminUser: [
+    {
+      username: "admin",
+      password: "admin",
+      email: "admin@gmail.com",
+    },
+    {
+      username: "ilyas",
+      password: "ilyas",
+      email: "ilyas@gmail.com",
+    },
+  ],
+
+  secureCookie: false,
+  sessionSecret: "secret",
+  apiToken: "secret",
+};

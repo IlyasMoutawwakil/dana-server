@@ -1,8 +1,6 @@
-/configs
 node_modules
 unused
 *.log
-www/views/projects
 www/public/dailyReports
 dana-bot/configs
 dana-bot/project
