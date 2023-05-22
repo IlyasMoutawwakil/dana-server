@@ -6,7 +6,7 @@ Dana (DAta ANalysis) system provides:
 - a regression workfow to follow the work on series and the overall progress,
 - a report is sent each day at midnight with a summary of new regressions of the day.
 
-![Demo](docs/Demo.gif)
+![Demo](docs/img/Demo.gif)
 
 ## Principles
 
