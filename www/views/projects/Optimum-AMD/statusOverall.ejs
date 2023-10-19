@@ -21,33 +21,18 @@
                   <span id="page_title_description"></span>
                 </h3>
               </ul>
-              <ul class="nav navbar-nav navbar-right" style="width: auto">
-                <% if (user===undefined) { %>
-                <li>
-                  <a href="/login"> Admin Login </a>
-                </li>
-                <% } else { %>
-                <li>
-                  <a href="/logout">
-                    <% if (user!==undefined) { %> Logout <%=user.username%> <% }
-                    %>
-                  </a>
-                </li>
-                <% } %>
-              </ul>
             </nav>
           </div>
         </div>
         <!-- /top navigation -->
 
-        <%- include('../../common/pageSeries') %>
+        <%- include('../../common/pageOverall') %>
       </div>
     </div>
 
     <script>
-      setSeriesPage({
-        projectId: "Optimum-Benchmark",
-        title: "All Default Latency",
+      setOverallPage({
+        projectId: "Optimum-AMD",
       });
     </script>
   </body>
