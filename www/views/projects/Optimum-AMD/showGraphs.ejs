@@ -1,0 +1,245 @@
+<% var relativeSideBarPath='../projects/Test'; %> <%-
+include('../../common/page', {relativeSideBarPath: relativeSideBarPath}) %>
+
+<!-- Show Graphs -->
+<script>
+  function legendFormatter(data) {
+    return "";
+  }
+  $(document).ready(function () {
+    tables.tableWidget0 = {
+      target: "tableWidget0",
+      title: {
+        name: "Exemple of graph table with 4 columns",
+        subtitle: "Great!",
+      },
+      getId: function getIdBuild(row, serie) {
+        return "serie.dummy." + (row.id + serie.id * 4);
+      },
+      series: [
+        {
+          name: "Line 1",
+          id: 0,
+        },
+        {
+          name: "Line 2",
+          id: 1,
+        },
+        {
+          name: "Line 3",
+          id: 2,
+        },
+        {
+          name: "Line 1",
+          id: 3,
+        },
+        {
+          name: "Line 4",
+          id: 4,
+        },
+        {
+          name: "Line 5",
+          id: 5,
+        },
+        {
+          name: "Line 6",
+          id: 6,
+        },
+        {
+          name: "Line 7",
+          id: 7,
+        },
+        {
+          name: "Line 8",
+          id: 8,
+        },
+        {
+          name: "Line 9",
+          id: 9,
+        },
+      ],
+      rows: [
+        {
+          name: "Row 1",
+          id: 0,
+          desc: "",
+        },
+        {
+          name: "Row 2",
+          id: 1,
+          desc: "",
+        },
+        {
+          name: "Row 3",
+          id: 2,
+          desc: "",
+        },
+        {
+          name: "Row 4",
+          id: 3,
+          desc: "",
+        },
+      ],
+      widthSerie: 10,
+      widthGraph: 30,
+      widthData: 30,
+      //widthRef: 30,
+      showDiff: true,
+    };
+    tables.tableWidget1 = {
+      target: "tableWidget1",
+      title: {
+        name: "Exemple of graph table with 3 columns",
+        subtitle: "I need it!",
+      },
+      getId: function getIdBuild(row, serie) {
+        return "serie.dummy." + (row.id + serie.id * 3 + 40);
+      },
+      series: [
+        {
+          name: "Line 1",
+          id: 0,
+        },
+        {
+          name: "Line 2",
+          id: 1,
+        },
+        {
+          name: "Line 3",
+          id: 2,
+        },
+        {
+          name: "Line 1",
+          id: 3,
+        },
+        {
+          name: "Line 4",
+          id: 4,
+        },
+        {
+          name: "Line 5",
+          id: 5,
+        },
+        {
+          name: "Line 6",
+          id: 6,
+        },
+        {
+          name: "Line 7",
+          id: 7,
+        },
+        {
+          name: "Line 8",
+          id: 8,
+        },
+        {
+          name: "Line 9",
+          id: 9,
+        },
+      ],
+      rows: [
+        {
+          name: "Row 1",
+          id: 0,
+          desc: "",
+        },
+        {
+          name: "Row 2",
+          id: 1,
+          desc: "",
+        },
+        {
+          name: "Row 3",
+          id: 2,
+          desc: "",
+        },
+      ],
+      widthSerie: 10,
+      widthGraph: 30,
+      widthData: 30,
+      //widthRef: 30,
+      showDiff: true,
+    };
+    tables.tableWidget2 = {
+      target: "tableWidget2",
+      title: {
+        name: "Exemple of graph table with 2 columns",
+        subtitle: "Awesome!",
+      },
+      getId: function getIdBuild(row, serie) {
+        return "serie.dummy." + (row.id + serie.id * 2 + 40 + 30);
+      },
+      series: [
+        {
+          name: "Line 1",
+          id: 0,
+        },
+        {
+          name: "Line 2",
+          id: 1,
+        },
+        {
+          name: "Line 3",
+          id: 2,
+        },
+        {
+          name: "Line 1",
+          id: 3,
+        },
+        {
+          name: "Line 4",
+          id: 4,
+        },
+        {
+          name: "Line 5",
+          id: 5,
+        },
+        {
+          name: "Line 6",
+          id: 6,
+        },
+        {
+          name: "Line 7",
+          id: 7,
+        },
+        {
+          name: "Line 8",
+          id: 8,
+        },
+        {
+          name: "Line 9",
+          id: 9,
+        },
+      ],
+      rows: [
+        {
+          name: "Row 1",
+          id: 0,
+          desc: "",
+        },
+        {
+          name: "Row 2",
+          id: 1,
+          desc: "",
+        },
+      ],
+      widthSerie: 10,
+      widthGraph: 30,
+      widthData: 30,
+      //widthRef: 30,
+      showDiff: true,
+    };
+
+    pageSetTitle("Exemple of multiple graphs using Test project");
+    pageSetProject(
+      {
+        projectId: "Test",
+      },
+      function e() {
+        pageAddTable("tableWidget0");
+        pageAddTable("tableWidget1");
+        pageAddTable("tableWidget2");
+      }
+    );
+  });
+</script>
