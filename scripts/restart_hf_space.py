@@ -7,7 +7,7 @@ api = HfApi()
 HF_TOKEN = os.environ.get("HF_TOKEN")
 
 # restart space
-api.restart_space(repo_id="IlyasMoutawwakil/dana", token=HF_TOKEN)
+api.restart_space(repo_id="IlyasMoutawwakil/dana", token=HF_TOKEN, factory_reboot=True)
 
 # wait for the space to be ready
 while True:
