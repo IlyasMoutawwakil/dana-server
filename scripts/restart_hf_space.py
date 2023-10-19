@@ -19,4 +19,5 @@ while True:
     elif runtime.stage in ["BUILD_ERROR", "RUNTIME_ERROR", "CONFIG_ERROR"]:
         raise RuntimeError(f"Error in the space: {runtime.stage}")
 
+    print(f"Space is in stage {runtime.stage}, waiting for it to be ready...")
     time.sleep(5)
