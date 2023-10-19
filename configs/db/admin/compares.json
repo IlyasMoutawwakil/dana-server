@@ -1,1 +1,9 @@
-{"pytorch_vs_onnxruntime":{"compareId":"pytorch_vs_onnxruntime","projectId":"Optimum-Benchmark","filter":"pytorch","useAverage":true,"compareWith":{"projectId":"Optimum-Benchmark","useAverage":true}}}
+{
+  "pytorch_vs_onnxruntime": {
+    "compareId": "pytorch_vs_onnxruntime",
+    "projectId": "Optimum-Benchmark",
+    "filter": "pytorch",
+    "useAverage": true,
+    "compareWith": { "projectId": "Optimum-Benchmark", "useAverage": true }
+  }
+}
