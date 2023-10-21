@@ -1,9 +1,19 @@
 name: Restart Dana Space
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - www/**
+      - src/**
+      - config/**
+      - third_party/**
+      - dana-client/restart_dana.py
+      - .github/workflows/restart_dana.yaml
+
+  # on folders and files
 
 jobs:
   restart_dana:

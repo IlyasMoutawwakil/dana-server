@@ -9,8 +9,6 @@ on:
 jobs:
   benchmark_rocm_nightly:
     runs-on: hf-amd-mi210-dev
-    needs: restart_dana # Wait for restart_dana job to finish
-    if: ${{ needs.restart_dana.result == 'success' }} # Only run if restart_dana job succeeded
     steps:
       - name: Checkout
         uses: actions/checkout@v2
