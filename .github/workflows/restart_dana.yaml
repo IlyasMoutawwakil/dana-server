@@ -21,7 +21,7 @@ jobs:
           pip install -r dana-client/requirements.txt
 
       - name: Run script
-        run: python scripts/restart_dana.py
+        run: python dana-client/restart_dana.py
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           USERNAME: ${{ secrets.USERNAME }}

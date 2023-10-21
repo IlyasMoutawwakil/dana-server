@@ -96,7 +96,7 @@ if __name__ == "__main__":
     )
 
     session = Session()
-    LOGGER.info(" + Authenticating to DANA")
+    LOGGER.info(" + Authenticating")
     authenticate(
         session=session,
         dana_url=DANA_SPACE_URL,
@@ -104,10 +104,11 @@ if __name__ == "__main__":
         password=PASSWORD,
     )
 
-    LOGGER.info("Publishing backup dataset to DANA")
+    LOGGER.info("Publishing backup dataset")
     publish_backup(
         session=session,
         dana_url=DANA_SPACE_URL,
         bearer_token=BEARER_TOKEN,
         backup_path=dataset_path,
     )
+    LOGGER.info("Finished publishing backup dataset")
