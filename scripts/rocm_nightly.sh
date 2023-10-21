@@ -1,5 +1,6 @@
-PROJECT_ID="ROCm-Nightly"
+# Script to run the benchmarks for rocm nightly build
 
+PROJECT_ID="ROCm-Nightly"
 BUILD_REPO_FOLDER="transformers"     # can be optimum-subpackage or transformers
 BENCHMARKS_REPO_FOLDER="optimum-amd" # can be optimum-subpackage or transformers
 
@@ -35,6 +36,7 @@ for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
 done
 
 # Publish the results
+pip install -r dana-client/requirements.txt
 python dana-client/publish_build.py --build-id "$BUILD_ID" \
     --project-id "$PROJECT_ID" \
     --build-folder "experiments" \
