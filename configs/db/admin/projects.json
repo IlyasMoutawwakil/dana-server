@@ -1,12 +1,6 @@
 {
-  "Optimum-Benchmark": {
-    "description": "An example of what a project looks like and what we can do with it",
-    "infos": "",
-    "users": "",
-    "useBugTracker": true
-  },
-  "Optimum-AMD": {
-    "description": "Benchmarks for AMD devices",
+  "ROCm-Nightly": {
+    "description": "Benchmarking ROCm+Transformers",
     "infos": "",
     "users": "",
     "useBugTracker": true

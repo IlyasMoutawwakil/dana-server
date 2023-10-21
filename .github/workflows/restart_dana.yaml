@@ -1,4 +1,4 @@
-name: Restart HF space
+name: Restart Dana Space
 
 on:
   push:
@@ -18,9 +18,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install huggingface-hub
+          pip install -r dana_client/requirements.txt
 
       - name: Run script
-        run: python scripts/restart_hf_space.py
+        run: python scripts/restart_dana.py
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}

@@ -1,0 +1,43 @@
+name: ROCm benchmarks (Nightly Transformers)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # every three hours
+    - cron: "0 */3 * * *"
+
+jobs:
+  run-regression:
+    runs-on: hf-amd-mi210-dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get Optimum-Benchmark
+        run: git clone https://github.com/huggingface/optimum-benchmark
+
+      - name: Build image
+        run: docker build
+          --file optimum-benchmark/docker/rocm.dockerfile
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
+          --build-arg ROCM_VERSION=5.6.1
+          --tag opt-bench-rocm:5.6.1
+          .
+
+      - name: Run Benchmarks
+        run: docker run
+          --rm
+          --device /dev/kfd
+          --device /dev/dri
+          --entrypoint /bin/bash
+          --volume $(pwd):/workspace/optimum-dana
+          --volume $HOME/.cache/huggingface:/home/user/.cache/huggingface
+          --workdir /workspace/optimum-dana
+          --env USE_ROCM="1"
+          --env HF_TOKEN=${{ secrets.HF_TOKEN }}
+          --env USERNAME=${{ secrets.USERNAME }}
+          --env PASSWORD=${{ secrets.PASSWORD }}
+          --env BEARER_TOKEN=${{ secrets.BEARER_TOKEN }}
+          opt-bench-rocm:5.6.1
+          -c "cd optimum-benchmark && pip install -e .[peft,diffusers] && cd .. && sh benchmarks/rocm_nightly.sh"
