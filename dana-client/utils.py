@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 from pathlib import Path
@@ -25,7 +26,7 @@ def add_new_project(
     project_description: str,
     override: bool = False,
 ) -> None:
-    project_url = f"{dana_url}/admin/addProject"
+    dana_project_url = f"{dana_url}/admin/addProject"
     project_payload = {
         "projectId": project_id,
         "description": project_description,
@@ -35,8 +36,8 @@ def add_new_project(
 
     post_to_dana(
         session=session,
+        dana_url=dana_project_url,
         bearer_token=bearer_token,
-        dashboard_url=project_url,
         payload=project_payload,
     )
 
@@ -55,7 +56,7 @@ def add_new_optimum_build(
     build_url: str,
     override: bool = False,
 ) -> None:
-    build_url = f"{dana_url}/apis/addBuild"
+    dana_build_url = f"{dana_url}/apis/addBuild"
     build_payload = {
         "projectId": project_id,
         "build": {
@@ -74,8 +75,8 @@ def add_new_optimum_build(
 
     post_to_dana(
         session=session,
+        dana_url=dana_build_url,
         bearer_token=bearer_token,
-        dashboard_url=build_url,
         payload=build_payload,
     )
 
@@ -92,7 +93,7 @@ def add_new_optimum_series(
     better_criterion: str = "lower",
     override: bool = False,
 ) -> None:
-    series_url = f"{dana_url}/apis/addSerie"
+    dana_series_url = f"{dana_url}/apis/addSerie"
     series_payload = {
         "projectId": project_id,
         "serieId": series_id,
@@ -111,8 +112,8 @@ def add_new_optimum_series(
 
     post_to_dana(
         session=session,
+        dana_url=dana_series_url,
         bearer_token=bearer_token,
-        dashboard_url=series_url,
         payload=series_payload,
     )
 
@@ -127,7 +128,7 @@ def add_new_sample(
     sample_value: int,
     override: bool = False,
 ) -> None:
-    sample_url = f"{dana_url}/apis/addSample"
+    dana_sample_url = f"{dana_url}/apis/addSample"
     sample_payload = {
         "projectId": project_id,
         "serieId": series_id,
@@ -137,8 +138,8 @@ def add_new_sample(
 
     post_to_dana(
         session=session,
+        dana_url=dana_sample_url,
         bearer_token=bearer_token,
-        dashboard_url=sample_url,
         payload=sample_payload,
     )
 
@@ -148,12 +149,15 @@ def authenticate(
     dana_url: str,
     username: str,
     password: str,
-) -> None:
-    session.post(
-        f"{dana_url}/login",
-        data=json.dumps({"username": username, "password": password}),
-        headers={"Content-Type": "application/json"},
-    )
+) -> Session:
+    if dana_url.startswith("http://"):
+        session.post(
+            f"{dana_url}/login",
+            data=json.dumps({"username": username, "password": password}),
+            headers={"Content-Type": "application/json"},
+        )
+
+    return session
 
 
 def post_to_dana(
@@ -177,7 +181,6 @@ def post_to_dana(
     LOGGER.info(f"API response code: {code}")
 
     if code != 200:
-        LOGGER.error(f"API response: {response.text}")
         raise RuntimeError("API request failed")
 
 
@@ -226,22 +229,26 @@ def publish_build(
         # Latency series
         series_id = f"{series_foler.name}_latency(ms)"
         LOGGER.info(f"\t + Publishing series {series_id}")
-        add_new_optimum_series(
-            session=session,
-            bearer_token=bearer_token,
-            dana_url=dana_url,
-            project_id=project_id,
-            series_id=series_id,
-            series_description=series_description,
-            better_criterion="lower",
-            average_range=AVERAGE_RANGE,
-            average_min_count=AVERAGE_MIN_COUNT,
-            override=False,
-        )
+        try:
+            add_new_optimum_series(
+                session=session,
+                bearer_token=bearer_token,
+                dana_url=dana_url,
+                project_id=project_id,
+                series_id=series_id,
+                series_description=series_description,
+                better_criterion="lower",
+                average_range=AVERAGE_RANGE,
+                average_min_count=AVERAGE_MIN_COUNT,
+                override=True,
+            )
+        except RuntimeError:
+            LOGGER.info(f"\t + Series {series_id} already exists")
+
         add_new_sample(
             session=session,
-            bearer_token=bearer_token,
             dana_url=dana_url,
+            bearer_token=bearer_token,
             project_id=project_id,
             build_id=build_id,
             series_id=series_id,
@@ -252,18 +259,22 @@ def publish_build(
         # Memory series
         series_id = f"{series_foler.name}_memory(MB)"
         LOGGER.info(f"\t + Publishing series {series_id}")
-        add_new_optimum_series(
-            session=session,
-            dana_url=dana_url,
-            bearer_token=bearer_token,
-            project_id=project_id,
-            series_id=series_id,
-            series_description=series_description,
-            better_criterion="lower",
-            average_range=AVERAGE_RANGE,
-            average_min_count=AVERAGE_MIN_COUNT,
-            override=False,
-        )
+        try:
+            add_new_optimum_series(
+                session=session,
+                dana_url=dana_url,
+                bearer_token=bearer_token,
+                project_id=project_id,
+                series_id=series_id,
+                series_description=series_description,
+                better_criterion="lower",
+                average_range=AVERAGE_RANGE,
+                average_min_count=AVERAGE_MIN_COUNT,
+                override=True,
+            )
+        except RuntimeError:
+            LOGGER.info(f"\t + Series {series_id} already exists")
+
         add_new_sample(
             session=session,
             dana_url=dana_url,

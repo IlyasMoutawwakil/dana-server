@@ -1,6 +1,12 @@
 {
+  "Dummy-Project": {
+    "description": "dummy dummy",
+    "infos": "",
+    "users": "",
+    "useBugTracker": true
+  },
   "ROCm-Nightly": {
-    "description": "Benchmarking ROCm+Transformers",
+    "description": "Benchmarks for ROCm and Transformers",
     "infos": "",
     "users": "",
     "useBugTracker": true
