@@ -23,6 +23,10 @@ cd ..
 
 # Get configs from benchmarks repo
 git clone $BENCHMARKS_REPO_URL
+cd $BENCHMARKS_REPO_FOLDER
+
+# temporary fix until we merge amd-benchmarks into optimum-amd
+git checkout amd-benchmarks
 
 # Run the benchmarks
 for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
