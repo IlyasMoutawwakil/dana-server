@@ -1,6 +1,6 @@
 PROJECT_ID="ROCm-Nightly"
 
-BUILD_REPO_FOLDER="transformers" # can be optimum-subpackage or transformers
+BUILD_REPO_FOLDER="transformers"     # can be optimum-subpackage or transformers
 BENCHMARKS_REPO_FOLDER="optimum-amd" # can be optimum-subpackage or transformers
 
 # Install optimum-benchmark for rocm from source
@@ -26,7 +26,7 @@ cd $BENCHMARKS_REPO_FOLDER
 # temporary fix until we merge amd-benchmarks into optimum-amd
 git checkout amd-benchmarks
 # Run the benchmarks
-for config_file in benchmarks/*.yaml; do
+for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
     config_name=$(basename $config_file .yaml)
 
     # skip base_config
@@ -35,17 +35,17 @@ for config_file in benchmarks/*.yaml; do
     fi
 
     echo "Running benchmark for $config_name"
-    optimum-benchmark --config-dir benchmarks --config-name $config_name --multirun
+    optimum-benchmark --config-dir $BENCHMARKS_REPO_FOLDER/benchmarks --config-name $config_name --multirun
 done
 cd ..
 
 # Publish the results
-python dana-client/publish_build.py --build-id $BUILD_ID \
-                                    --project-id $PROJECT_ID \
-                                    --build-folder $BENCHMARKS_REPO_FOLDER/experiments \
-                                    --build-hash $BUILD_HASH \
-                                    --build-abbrev-hash $BUILD_ABBREV_HASH \
-                                    --build-author-name $BUILD_AUTHOR_NAME \
-                                    --build-author-email $BUILD_AUTHOR_EMAIL \
-                                    --build-subject $BUILD_SUBJECT \
-                                    --build-url $BUILD_URL \
+python dana-client/publish_build.py --build-id "$BUILD_ID" \
+    --project-id "$PROJECT_ID" \
+    --build-folder "experiments" \
+    --build-hash "$BUILD_HASH" \
+    --build-abbrev-hash "$BUILD_ABBREV_HASH" \
+    --build-author-name "$BUILD_AUTHOR_NAME" \
+    --build-author-email "$BUILD_AUTHOR_EMAIL" \
+    --build-subject "$BUILD_SUBJECT" \
+    --build-url "$BUILD_URL"
