@@ -15,9 +15,9 @@ jobs:
 
       - name: Get Optimum-Benchmark, Optimum-AMD and Transformers
         run: |
-          git clone https://github.com/huggingface/optimum-amd
           git clone https://github.com/huggingface/transformers
-          git clone https://${{ secrets.PAT }}@github.com/huggingface/optimum-benchmark
+          git clone https://github.com/huggingface/optimum-benchmark.git
+          git clone https://${{ secrets.PAT }}@github.com/huggingface/optimum-amd
 
       - name: Build image
         run: docker build
