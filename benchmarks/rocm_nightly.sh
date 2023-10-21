@@ -23,10 +23,9 @@ cd ..
 
 # Get configs from optimum-amd
 git clone $BENCHMARKS_REPO_URL
-cd $BENCHMARKS_REPO_FOLDER
 
 # Run the benchmarks
-for file in benchmarks/*.yaml; do
+for file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
     config=$(basename $file .yaml)
 
     # skip base_config
@@ -35,15 +34,15 @@ for file in benchmarks/*.yaml; do
     fi
 
     echo "Running benchmark for $config"
-    optimum-benchmark --config-dir benchmarks --config-name $config --multirun
+    optimum-benchmark --config-dir $BENCHMARKS_REPO_FOLDER/benchmarks --config-name $config --multirun
 done
 
-python scripts/publish_build.py --build-id $BUILD_ID \
-                                --project-id $PROJECT_ID \
-                                --build-folder experiments \
-                                --build-hash $BUILD_HASH \
-                                --build-abbrev-hash $BUILD_ABBREV_HASH \
-                                --build-author-name $BUILD_AUTHOR_NAME \
-                                --build-author-email $BUILD_AUTHOR_EMAIL \
-                                --build-subject $BUILD_SUBJECT \
-                                --build-url $BUILD_URL \
+python dana_client/publish_build.py --build-id $BUILD_ID \
+                                    --project-id $PROJECT_ID \
+                                    --build-folder experiments \
+                                    --build-hash $BUILD_HASH \
+                                    --build-abbrev-hash $BUILD_ABBREV_HASH \
+                                    --build-author-name $BUILD_AUTHOR_NAME \
+                                    --build-author-email $BUILD_AUTHOR_EMAIL \
+                                    --build-subject $BUILD_SUBJECT \
+                                    --build-url $BUILD_URL \
