@@ -21,11 +21,6 @@ BUILD_SUBJECT=$(git show -s --format='%s' HEAD)
 BUILD_URL=$BUILD_REPO_URL/commit/$BUILD_HASH
 cd ..
 
-# temporary fix until we merge amd-benchmarks into optimum-amd
-cd $BENCHMARKS_REPO_FOLDER
-git checkout amd-benchmarks
-cd ..
-
 # Run the benchmarks
 for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
     config_name=$(basename $config_file .yaml)

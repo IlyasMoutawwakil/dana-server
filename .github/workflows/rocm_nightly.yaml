@@ -15,9 +15,9 @@ jobs:
 
       - name: Get Optimum-Benchmark, Optimum-AMD and Transformers
         run: |
+          git clone https://github.com/IlyasMoutawwakil/optimum-amd
+          git clone https://github.com/huggingface/optimum-benchmark
           git clone https://github.com/huggingface/transformers
-          git clone https://github.com/huggingface/optimum-benchmark.git
-          git clone https://${{ secrets.PAT }}@github.com/huggingface/optimum-amd
 
       - name: Build image
         run: docker build
@@ -38,9 +38,9 @@ jobs:
           --volume $HOME/.cache/huggingface:/home/user/.cache/huggingface
           --workdir /workspace/optimum-dana
           --env USE_ROCM="1"
-          --env HF_TOKEN=${{ secrets.HF_TOKEN }}
+          --env BEARER_TOKEN=${{ secrets.BEARER_TOKEN }}
           --env USERNAME=${{ secrets.USERNAME }}
           --env PASSWORD=${{ secrets.PASSWORD }}
-          --env BEARER_TOKEN=${{ secrets.BEARER_TOKEN }}
+          --env HF_TOKEN=${{ secrets.HF_TOKEN }}
           opt-bench-rocm:5.6.1
           -c "sh scripts/rocm_nightly.sh"
