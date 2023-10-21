@@ -1,16 +1,16 @@
 PROJECT_ID="ROCm-Nightly"
 
-BENCHMARKS_REPO_URL="https://github.com/huggingface/optimum-amd" # can be optimum-subpackage or transformers
+BUILD_REPO_FOLDER="transformers" # can be optimum-subpackage or transformers
 BENCHMARKS_REPO_FOLDER="optimum-amd" # can be optimum-subpackage or transformers
 
-BUILD_REPO_URL="https://github.com/huggingface/transformers" # can be optimum-subpackage or transformers
-BUILD_REPO_FOLDER="transformers" # can be optimum-subpackage or transformers
+# Install optimum-benchmark for rocm from source
+cd optimum-benchmark
+pip install -e .[peft,diffusers]
+cd ..
 
 # Install build repository from source
-git clone $BUILD_REPO_URL
 cd $BUILD_REPO_FOLDER
 pip install -e .
-
 # Get latest build info
 BUILD_ID=$(git rev-list --count HEAD)
 BUILD_HASH=$(git rev-parse HEAD)
@@ -22,14 +22,11 @@ BUILD_URL=$BUILD_REPO_URL/commit/$BUILD_HASH
 cd ..
 
 # Get configs from benchmarks repo
-git clone $BENCHMARKS_REPO_URL
 cd $BENCHMARKS_REPO_FOLDER
-
 # temporary fix until we merge amd-benchmarks into optimum-amd
 git checkout amd-benchmarks
-
 # Run the benchmarks
-for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
+for config_file in benchmarks/*.yaml; do
     config_name=$(basename $config_file .yaml)
 
     # skip base_config
@@ -38,12 +35,14 @@ for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
     fi
 
     echo "Running benchmark for $config_name"
-    optimum-benchmark --config-dir $BENCHMARKS_REPO_FOLDER/benchmarks --config-name $config_name --multirun
+    optimum-benchmark --config-dir benchmarks --config-name $config_name --multirun
 done
+cd ..
 
+# Publish the results
 python dana-client/publish_build.py --build-id $BUILD_ID \
                                     --project-id $PROJECT_ID \
-                                    --build-folder experiments \
+                                    --build-folder $BENCHMARKS_REPO_FOLDER/experiments \
                                     --build-hash $BUILD_HASH \
                                     --build-abbrev-hash $BUILD_ABBREV_HASH \
                                     --build-author-name $BUILD_AUTHOR_NAME \
