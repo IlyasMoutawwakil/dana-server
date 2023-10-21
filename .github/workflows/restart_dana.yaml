@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r dana_client/requirements.txt
+          pip install -r dana-client/requirements.txt
 
       - name: Run script
         run: python scripts/restart_dana.py
