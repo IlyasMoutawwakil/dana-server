@@ -38,9 +38,14 @@ jobs:
           --volume $HOME/.cache/huggingface:/home/user/.cache/huggingface
           --workdir /workspace/optimum-dana
           --env USE_ROCM="1"
-          --env BEARER_TOKEN=${{ secrets.BEARER_TOKEN }}
-          --env USERNAME=${{ secrets.USERNAME }}
-          --env PASSWORD=${{ secrets.PASSWORD }}
-          --env HF_TOKEN=${{ secrets.HF_TOKEN }}
+          --env BEARER_TOKEN=$BEARER_TOKEN
+          --env USERNAME=$USERNAME
+          --env PASSWORD=$PASSWORD
+          --env HF_TOKEN=$HF_TOKEN
           opt-bench-rocm:5.6.1
           -c "sh scripts/rocm_nightly.sh"
+        env:
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
