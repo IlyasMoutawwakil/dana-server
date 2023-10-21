@@ -5,7 +5,7 @@ from pathlib import Path
 from requests import Session
 
 from huggingface_hub import snapshot_download, HfApi
-from dana_client.utils import LOGGER, authenticate, publish_build, add_new_project
+from utils import LOGGER, authenticate, publish_build, add_new_project
 
 
 HF_TOKEN = os.environ.get("HF_TOKEN", None)

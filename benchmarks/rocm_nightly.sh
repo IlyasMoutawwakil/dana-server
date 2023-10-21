@@ -11,7 +11,7 @@ git clone $BUILD_REPO_URL
 cd $BUILD_REPO_FOLDER
 pip install -e .
 
-# get transformers build info
+# Get latest build info
 BUILD_ID=$(git rev-list --count HEAD)
 BUILD_HASH=$(git rev-parse HEAD)
 BUILD_ABBREV_HASH=$(git rev-parse --short HEAD)
@@ -21,23 +21,23 @@ BUILD_SUBJECT=$(git show -s --format='%s' HEAD)
 BUILD_URL=$BUILD_REPO_URL/commit/$BUILD_HASH
 cd ..
 
-# Get configs from optimum-amd
+# Get configs from benchmarks repo
 git clone $BENCHMARKS_REPO_URL
 
 # Run the benchmarks
-for file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
-    config=$(basename $file .yaml)
+for config_file in $BENCHMARKS_REPO_FOLDER/benchmarks/*.yaml; do
+    config_name=$(basename $config_file .yaml)
 
     # skip base_config
-    if [ "$config" = "_base_" ]; then
+    if [ "$config_name" = "_base_" ]; then
         continue
     fi
 
-    echo "Running benchmark for $config"
-    optimum-benchmark --config-dir $BENCHMARKS_REPO_FOLDER/benchmarks --config-name $config --multirun
+    echo "Running benchmark for $config_name"
+    optimum-benchmark --config-dir $BENCHMARKS_REPO_FOLDER/benchmarks --config-name $config_name --multirun
 done
 
-python dana_client/publish_build.py --build-id $BUILD_ID \
+python dana-client/publish_build.py --build-id $BUILD_ID \
                                     --project-id $PROJECT_ID \
                                     --build-folder experiments \
                                     --build-hash $BUILD_HASH \

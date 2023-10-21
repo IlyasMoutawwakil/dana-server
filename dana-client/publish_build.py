@@ -4,7 +4,7 @@ from pathlib import Path
 from requests import Session
 
 from huggingface_hub import HfApi
-from dana_client.utils import LOGGER, authenticate, publish_build
+from utils import LOGGER, authenticate, publish_build
 
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 USERNAME = os.environ.get("USERNAME", "admin")
