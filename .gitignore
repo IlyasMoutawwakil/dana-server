@@ -9,3 +9,6 @@ dana-bot/www/public/sponge
 [._]*.sw[a-p]
 
 .vscode
+**.pyc
+experiments
+optimum-*
