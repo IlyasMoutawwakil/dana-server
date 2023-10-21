@@ -1,4 +1,4 @@
-name: ROCm benchmarks (Nightly Transformers)
+name: Benchmark ROCm (Nightly Transformers)
 
 on:
   workflow_dispatch:
@@ -7,14 +7,22 @@ on:
     - cron: "0 */3 * * *"
 
 jobs:
-  run-regression:
+  benchmark_rocm_nightly:
     runs-on: hf-amd-mi210-dev
+    needs: restart_dana # Wait for restart_dana job to finish
+    if: ${{ needs.restart_dana.result == 'success' }} # Only run if restart_dana job succeeded
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get Optimum-Benchmark
-        run: git clone https://github.com/huggingface/optimum-benchmark
+      - name: Get Optimum-Benchmark and Optimum-AMD
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git clone https://github.com/huggingface/optimum-benchmark
+          git clone https://github.com/huggingface/optimum-amd
+        env:
+          PAT: ${{ secrets.PAT }}
 
       - name: Build image
         run: docker build

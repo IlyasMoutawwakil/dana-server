@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  restart_hf_space:
+  restart_dana:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
