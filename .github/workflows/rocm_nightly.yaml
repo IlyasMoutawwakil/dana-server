@@ -14,10 +14,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get Optimum-Benchmark, Optimum-AMD and Transformers
-        run: |
-          git clone https://github.com/IlyasMoutawwakil/optimum-amd
-          git clone https://github.com/huggingface/optimum-benchmark
-          git clone https://github.com/huggingface/transformers
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_seconds: 30
+          command: |
+            git clone https://github.com/IlyasMoutawwakil/optimum-amd
+            git clone https://github.com/huggingface/optimum-benchmark
+            git clone https://github.com/huggingface/transformers
 
       - name: Build image
         run: docker build
