@@ -256,32 +256,32 @@ def publish_build(
             override=True,
         )
 
-        # Memory series
-        series_id = f"{series_foler.name}_memory(MB)"
-        LOGGER.info(f"\t + Publishing series {series_id}")
-        try:
-            add_new_optimum_series(
-                session=session,
-                dana_url=dana_url,
-                bearer_token=bearer_token,
-                project_id=project_id,
-                series_id=series_id,
-                series_description=series_description,
-                better_criterion="lower",
-                average_range=AVERAGE_RANGE,
-                average_min_count=AVERAGE_MIN_COUNT,
-                override=True,
-            )
-        except RuntimeError:
-            LOGGER.info(f"\t + Series {series_id} already exists")
+        # # Memory series
+        # series_id = f"{series_foler.name}_memory(MB)"
+        # LOGGER.info(f"\t + Publishing series {series_id}")
+        # try:
+        #     add_new_optimum_series(
+        #         session=session,
+        #         dana_url=dana_url,
+        #         bearer_token=bearer_token,
+        #         project_id=project_id,
+        #         series_id=series_id,
+        #         series_description=series_description,
+        #         better_criterion="lower",
+        #         average_range=AVERAGE_RANGE,
+        #         average_min_count=AVERAGE_MIN_COUNT,
+        #         override=True,
+        #     )
+        # except RuntimeError:
+        #     LOGGER.info(f"\t + Series {series_id} already exists")
 
-        add_new_sample(
-            session=session,
-            dana_url=dana_url,
-            bearer_token=bearer_token,
-            project_id=project_id,
-            build_id=build_id,
-            series_id=series_id,
-            sample_value=memory_mb,
-            override=True,
-        )
+        # add_new_sample(
+        #     session=session,
+        #     dana_url=dana_url,
+        #     bearer_token=bearer_token,
+        #     project_id=project_id,
+        #     build_id=build_id,
+        #     series_id=series_id,
+        #     sample_value=memory_mb,
+        #     override=True,
+        # )
