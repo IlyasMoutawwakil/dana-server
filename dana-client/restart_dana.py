@@ -76,7 +76,6 @@ def publish_backup(
                 build_id=build_id,
                 build_info=build_info,
                 build_folder=build_path,
-                override=True,
             )
 
 
