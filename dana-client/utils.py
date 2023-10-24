@@ -23,7 +23,7 @@ def add_new_project(
     dana_url: str,
     bearer_token: str,
     project_id: str,
-    project_description: str,
+    project_description: str = "",
     override: bool = False,
 ) -> None:
     dana_project_url = f"{dana_url}/admin/addProject"
