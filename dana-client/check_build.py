@@ -3,22 +3,20 @@ import json
 import argparse
 from requests import Session
 
-from utils import LOGGER, authenticate
+from dana_utils import authenticate
+from dana_constants import DANA_SPACE_URL
 
+
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
+API_TOKEN = os.environ.get("API_TOKEN", None)
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
-USERNAME = os.environ.get("USERNAME", "admin")
-PASSWORD = os.environ.get("PASSWORD", "admin")
-BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "secret")
-
-DANA_SPACE_ID = "IlyasMoutawwakil/dana-space"
-DANA_DATASET_ID = "IlyasMoutawwakil/dana-dataset"
-DANA_SPACE_URL = "https://ilyasmoutawwakil-dana-space.hf.space"
 
 
-def get_project(
+def check_project(
     session: Session,
     dana_url: str,
-    bearer_token: str,
+    api_token: str,
     project_id: str,
 ):
     response = session.get(
@@ -26,7 +24,7 @@ def get_project(
         data=json.dumps({"projectId": project_id, "buildId": 0}),
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {bearer_token}",
+            "Authorization": f"Bearer {api_token}",
         },
     )
 
@@ -36,10 +34,10 @@ def get_project(
     return response.json()
 
 
-def get_build(
+def check_build(
     session: Session,
     dana_url: str,
-    bearer_token: str,
+    api_token: str,
     project_id: str,
     build_id: int,
 ):
@@ -48,7 +46,7 @@ def get_build(
         data=json.dumps({"projectId": project_id, "buildId": build_id}),
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {bearer_token}",
+            "Authorization": f"Bearer {api_token}",
         },
     )
 
@@ -74,21 +72,22 @@ if __name__ == "__main__":
     session = authenticate(
         session=session,
         dana_url=DANA_SPACE_URL,
-        username=USERNAME,
-        password=PASSWORD,
+        username=ADMIN_USERNAME,
+        password=ADMIN_PASSWORD,
+        auth_token=HF_TOKEN,
     )
 
-    project = get_project(
+    project = check_project(
         session=session,
         dana_url=DANA_SPACE_URL,
-        bearer_token=BEARER_TOKEN,
+        api_token=API_TOKEN,
         project_id=project_id,
     )
 
-    build = get_build(
+    build = check_build(
         session=session,
         dana_url=DANA_SPACE_URL,
-        bearer_token=BEARER_TOKEN,
+        api_token=API_TOKEN,
         project_id=project_id,
         build_id=build_id,
     )

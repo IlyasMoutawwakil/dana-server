@@ -5,17 +5,16 @@ from pathlib import Path
 from requests import Session
 
 from huggingface_hub import snapshot_download, HfApi
-from utils import LOGGER, authenticate, publish_build, add_new_project
+
+from dana_constants import DANA_SPACE_ID, DANA_DATASET_ID, DANA_SPACE_URL
+from dana_utils import LOGGER, authenticate
+from publish_build import publish_build
 
 
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
+API_TOKEN = os.environ.get("API_TOKEN", None)
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
-USERNAME = os.environ.get("USERNAME", "admin")
-PASSWORD = os.environ.get("PASSWORD", "admin")
-BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "secret")
-
-DANA_SPACE_ID = "IlyasMoutawwakil/dana-space"
-DANA_DATASET_ID = "IlyasMoutawwakil/dana-dataset"
-DANA_SPACE_URL = "https://ilyasmoutawwakil-dana-space.hf.space"
 
 
 def restart_space(
@@ -43,22 +42,16 @@ def restart_space(
 def publish_backup(
     session: Session,
     dana_url: str,
-    bearer_token: str,
+    api_token: str,
     backup_path: Path,
 ) -> None:
     for project_path in backup_path.iterdir():
         if not project_path.is_dir():
             continue
 
+        # for now we don't publish projects because their pages are not created automatically
+        # TODO: automate project pages creation in dana server
         project_id = project_path.name
-        LOGGER.info(f" + Publishing project {project_id}")
-        add_new_project(
-            session=session,
-            dana_url=dana_url,
-            bearer_token=bearer_token,
-            project_id=project_id,
-            override=True,
-        )
 
         for build_path in project_path.iterdir():
             if not build_path.is_dir():
@@ -71,7 +64,7 @@ def publish_backup(
             publish_build(
                 session=session,
                 dana_url=dana_url,
-                bearer_token=bearer_token,
+                api_token=api_token,
                 project_id=project_id,
                 build_id=build_id,
                 build_info=build_info,
@@ -99,15 +92,16 @@ if __name__ == "__main__":
     authenticate(
         session=session,
         dana_url=DANA_SPACE_URL,
-        username=USERNAME,
-        password=PASSWORD,
+        username=ADMIN_USERNAME,
+        password=ADMIN_PASSWORD,
+        auth_token=HF_TOKEN,
     )
 
     LOGGER.info("Publishing backup dataset")
     publish_backup(
         session=session,
         dana_url=DANA_SPACE_URL,
-        bearer_token=BEARER_TOKEN,
+        api_token=API_TOKEN,
         backup_path=dataset_path,
     )
     LOGGER.info("Finished publishing backup dataset")

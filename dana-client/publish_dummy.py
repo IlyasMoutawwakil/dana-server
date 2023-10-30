@@ -2,21 +2,19 @@ import os
 import random
 from requests import Session
 
-from utils import (
+from dana_constants import DANA_SPACE_URL
+from dana_utils import (
     LOGGER,
     authenticate,
-    add_new_project,
-    add_new_optimum_build,
-    add_new_optimum_series,
+    add_new_build,
+    add_new_series,
     add_new_sample,
 )
 
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
+API_TOKEN = os.environ.get("API_TOKEN", None)
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
-USERNAME = os.environ.get("USERNAME", "admin")
-PASSWORD = os.environ.get("PASSWORD", "admin")
-BEARER_TOKEN = os.environ.get("BEARER_TOKEN", "secret")
-
-DANA_SPACE_URL = "http://localhost:7000"
 
 if __name__ == "__main__":
     project_id = "Dummy-Project"
@@ -28,25 +26,15 @@ if __name__ == "__main__":
     authenticate(
         session=session,
         dana_url=DANA_SPACE_URL,
-        username=USERNAME,
-        password=PASSWORD,
-    )
-
-    LOGGER.info(" + Publishing project")
-    add_new_project(
-        session=session,
-        dana_url=DANA_SPACE_URL,
-        bearer_token=BEARER_TOKEN,
-        project_id=project_id,
-        project_description="Dummy Dummy Dummy",
-        override=True,
+        username=ADMIN_USERNAME,
+        password=ADMIN_PASSWORD,
     )
 
     LOGGER.info(" + Publishing series")
-    add_new_optimum_series(
+    add_new_series(
         session=session,
         dana_url=DANA_SPACE_URL,
-        bearer_token=BEARER_TOKEN,
+        api_token=API_TOKEN,
         project_id=project_id,
         series_id=series_id,
         average_range=5,
@@ -70,10 +58,10 @@ if __name__ == "__main__":
         build_id = random.randint(0, 1000000)
         sample_value = random.randint(0, 100)
 
-        add_new_optimum_build(
+        add_new_build(
             session=session,
             dana_url=DANA_SPACE_URL,
-            bearer_token=BEARER_TOKEN,
+            api_token=API_TOKEN,
             project_id=project_id,
             build_id=build_id,
             build_url=build_info["build_url"],
@@ -89,7 +77,7 @@ if __name__ == "__main__":
         add_new_sample(
             session=session,
             dana_url=DANA_SPACE_URL,
-            bearer_token=BEARER_TOKEN,
+            api_token=API_TOKEN,
             project_id=project_id,
             series_id=series_id,
             build_id=build_id,
