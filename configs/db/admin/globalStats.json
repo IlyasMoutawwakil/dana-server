@@ -3,6 +3,7 @@
   "numSeries": 0,
   "projects": {
     "Dummy-Project": { "numSamples": 0, "numSeries": 0 },
-    "ROCm-Nightly": { "numSamples": 0, "numSeries": 0 }
+    "Optimum-AMD": { "numSamples": 0, "numSeries": 0 },
+    "Optimum-NVIDIA": { "numSamples": 0, "numSeries": 0 }
   }
 }

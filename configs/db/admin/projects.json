@@ -1,14 +1,20 @@
 {
   "Dummy-Project": {
-    "description": "dummy dummy",
-    "infos": "",
+    "description": "Dummy project for testing",
+    "infos": "This is a dummy project that's only accessible by the admin user.",
     "users": "",
+    "useBugTracker": false
+  },
+  "Optimum-AMD": {
+    "description": "Benchmarks for AMD devices",
+    "infos": "",
+    "users": "amd-user",
     "useBugTracker": true
   },
-  "ROCm-Nightly": {
-    "description": "Benchmarks for ROCm and Transformers",
+  "Optimum-NVIDIA": {
+    "description": "Benchmarks for NVIDIA devices",
     "infos": "",
-    "users": "",
+    "users": "nvidia-user",
     "useBugTracker": true
   }
 }

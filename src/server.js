@@ -1245,9 +1245,9 @@ app.use(require("body-parser").json());
 const session = require("express-session");
 const { unitConversion } = require("./utils");
 const sessionMiddleware = session({
-  secret: global.config.sessionSecret,
   resave: false,
   saveUninitialized: false,
+  secret: global.config.sessionSecret,
   cookie: { secure: global.config.secureCookie },
 });
 app.use(sessionMiddleware);
