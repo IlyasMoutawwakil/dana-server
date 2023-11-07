@@ -1,20 +1,8 @@
 {
-  "Dummy-Project": {
-    "description": "Dummy project for testing",
-    "infos": "This is a dummy project that's only accessible by the admin user.",
-    "users": "",
-    "useBugTracker": false
-  },
-  "Optimum-AMD": {
-    "description": "Benchmarks for AMD devices",
-    "infos": "",
-    "users": "amd-user",
-    "useBugTracker": true
-  },
-  "Optimum-NVIDIA": {
-    "description": "Benchmarks for NVIDIA devices",
-    "infos": "",
-    "users": "nvidia-user",
-    "useBugTracker": true
-  }
+    "test": {
+        "description": "Benchmarks for test",
+        "infos": "",
+        "users": "",
+        "useBugTracker": true
+    }
 }
