@@ -1,7 +1,6 @@
 node_modules
 unused
 *.log
-www/public/dailyReports
 dana-bot/configs
 dana-bot/project
 dana-bot/tmp
@@ -10,5 +9,3 @@ dana-bot/www/public/sponge
 
 .vscode
 **.pyc
-experiments
-optimum-*

@@ -1568,9 +1568,11 @@ app.post(
     global.admin.writeSync("projects", global.projectsConfig);
 
     global.projects[projectId] = {};
+    // create the project folder
     if (!fs.existsSync(cwd + "/configs/db/" + projectId)) {
       fs.mkdirSync(cwd + "/configs/db/" + projectId);
     }
+    // create the series, comments and infos folders
     global.projects[projectId].series = new ModuleFiles(
       cwd + "/configs/db/" + projectId + "/series",
       200
@@ -1583,6 +1585,31 @@ app.post(
       cwd + "/configs/db/" + projectId + "/infos",
       200
     );
+
+    // create the project pages by copying from www/views/projects/DummyProject and changing all occurences of DummyProject in the files to projectId
+    let src = cwd + "/www/views/projects/DummyProject";
+    let dst = cwd + "/www/views/projects/" + projectId;
+
+    if (!fs.existsSync(dst)) {
+      fs.mkdirSync(dst);
+    }
+
+    let files = fs.readdirSync(src);
+    for (let ii = 0; ii < files.length; ii++) {
+      let file = files[ii];
+      let srcFile = src + "/" + file;
+      let dstFile = dst + "/" + file;
+      let data = fs.readFileSync(srcFile, "utf8");
+      data = data.replace(/DummyProject/g, projectId);
+      fs.writeFileSync(dstFile, data, "utf8");
+    }
+
+    // also create ww/public/dailyReports/projectId.html from www/public/dailyReports/DummyProject.html
+    src = cwd + "/www/public/dailyReports/DummyProject.html";
+    dst = cwd + "/www/public/dailyReports/" + projectId + ".html";
+    let data = fs.readFileSync(src, "utf8");
+    data = data.replace(/DummyProject/g, projectId);
+    fs.writeFileSync(dst, data, "utf8");
 
     res.redirect("/admin/viewProjects");
   }
