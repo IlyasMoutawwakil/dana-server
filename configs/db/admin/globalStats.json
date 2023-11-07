@@ -1,10 +1,5 @@
 {
-    "numSamples": 0,
-    "numSeries": 0,
-    "projects": {
-        "test": {
-            "numSamples": 0,
-            "numSeries": 0
-        }
-    }
+  "numSamples": 0,
+  "numSeries": 0,
+  "projects": {}
 }
