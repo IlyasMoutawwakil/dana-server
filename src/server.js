@@ -629,7 +629,6 @@ function apiAddSample(apiData, hdl) {
     return hdl("Invalid data, sampleUnit is missing");
   }
   sampleUnit = apiData.sampleUnit;
-  
 
   if (apiData.sample === undefined && apiData.samples === undefined) {
     return hdl("Invalid data, sample or samples is missing");
@@ -1530,20 +1529,20 @@ app.post(
     // create the project folder
     if (!fs.existsSync(cwd + "/configs/db/" + projectId)) {
       fs.mkdirSync(cwd + "/configs/db/" + projectId);
+      // create the series, comments and infos folders
+      global.projects[projectId].series = new ModuleFiles(
+        cwd + "/configs/db/" + projectId + "/series",
+        200
+      );
+      global.projects[projectId].comments = new ModuleFiles(
+        cwd + "/configs/db/" + projectId + "/comments",
+        200
+      );
+      global.projects[projectId].infos = new ModuleFiles(
+        cwd + "/configs/db/" + projectId + "/infos",
+        200
+      );
     }
-    // create the series, comments and infos folders
-    global.projects[projectId].series = new ModuleFiles(
-      cwd + "/configs/db/" + projectId + "/series",
-      200
-    );
-    global.projects[projectId].comments = new ModuleFiles(
-      cwd + "/configs/db/" + projectId + "/comments",
-      200
-    );
-    global.projects[projectId].infos = new ModuleFiles(
-      cwd + "/configs/db/" + projectId + "/infos",
-      200
-    );
 
     // create the project pages by copying from www/views/projects/DummyProject and changing all occurences of DummyProject in the files to projectId
     let src = cwd + "/www/views/projects/DummyProject";
@@ -1551,24 +1550,25 @@ app.post(
 
     if (!fs.existsSync(dst)) {
       fs.mkdirSync(dst);
-    }
-
-    let files = fs.readdirSync(src);
-    for (let ii = 0; ii < files.length; ii++) {
-      let file = files[ii];
-      let srcFile = src + "/" + file;
-      let dstFile = dst + "/" + file;
-      let data = fs.readFileSync(srcFile, "utf8");
-      data = data.replace(/DummyProject/g, projectId);
-      fs.writeFileSync(dstFile, data, "utf8");
+      let files = fs.readdirSync(src);
+      for (let ii = 0; ii < files.length; ii++) {
+        let file = files[ii];
+        let srcFile = src + "/" + file;
+        let dstFile = dst + "/" + file;
+        let data = fs.readFileSync(srcFile, "utf8");
+        data = data.replace(/DummyProject/g, projectId);
+        fs.writeFileSync(dstFile, data, "utf8");
+      }
     }
 
     // also create ww/public/dailyReports/projectId.html from www/public/dailyReports/DummyProject.html
     src = cwd + "/www/public/dailyReports/DummyProject.html";
     dst = cwd + "/www/public/dailyReports/" + projectId + ".html";
-    let data = fs.readFileSync(src, "utf8");
-    data = data.replace(/DummyProject/g, projectId);
-    fs.writeFileSync(dst, data, "utf8");
+    if (!fs.existsSync(dst)) {
+      let data = fs.readFileSync(src, "utf8");
+      data = data.replace(/DummyProject/g, projectId);
+      fs.writeFileSync(dst, data, "utf8");
+    }
 
     res.redirect("/admin/viewProjects");
   }
@@ -1628,6 +1628,9 @@ app.post(
     global.projects[projectId].comments.deleteSyncAll();
     global.projects[projectId].infos.deleteSyncAll();
     ModuleFiles.deleteFolderRecursive(cwd + "/configs/db/" + projectId);
+    ModuleFiles.deleteFolderRecursive(cwd + "/www/views/projects/" + projectId);
+    fs.unlinkSync(cwd + "/www/public/dailyReports/" + projectId + ".html");
+
     res.redirect("/admin/viewProjects");
   }
 );
@@ -1707,29 +1710,23 @@ app.post("/apis/:apiAction", function (req, res, next) {
     return;
   }
   if (apiName === "addSerie") {
-    apiAddSerie(
-      data,
-      function end(err) {
-        if (err) {
-          err.status = 400;
-          return res.send(err);
-        }
-        return res.send("addSerie successfull\n");
+    apiAddSerie(data, function end(err) {
+      if (err) {
+        err.status = 400;
+        return res.send(err);
       }
-    );
+      return res.send("addSerie successfull\n");
+    });
     return;
   }
   if (apiName === "addSample") {
-    apiAddSample(
-      data,
-      function end(err) {
-        if (err) {
-          err.status = 400;
-          return res.send(err);
-        }
-        return res.send("addSample successfull\n");
+    apiAddSample(data, function end(err) {
+      if (err) {
+        err.status = 400;
+        return res.send(err);
       }
-    );
+      return res.send("addSample successfull\n");
+    });
     return;
   }
 
@@ -1741,16 +1738,13 @@ app.post("/apis/:apiAction", function (req, res, next) {
 app.get("/apis/getBuild", function (req, res, next) {
   let data = req.body;
   if (global.debug) console.log("Got a request", "getBuild", data);
-  apiGetBuild(
-    data,
-    function end(results, err) {
-      if (err) {
-        err.status = 400;
-        return res.send(err);
-      }
-      return res.json(results);
+  apiGetBuild(data, function end(results, err) {
+    if (err) {
+      err.status = 400;
+      return res.send(err);
     }
-  );
+    return res.json(results);
+  });
 });
 
 app.get("/*", function (req, res) {
