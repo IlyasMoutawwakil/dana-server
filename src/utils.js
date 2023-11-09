@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-'use strict';
+"use strict";
 /* eslint require-jsdoc: "off" */
 /* eslint-env es6 */
 
 const TIME_UNITS = {
-  "ns": 1,
-  "us": 10**3,
-  "ms": 10**6,
+  ns: 1,
+  us: 10 ** 3,
+  ms: 10 ** 6,
 };
 const SIZE_UNITS = {
-  "bytes": 1,
-  "kbytes": 2**10,
-  "mbytes": 2**20,
+  bytes: 1,
+  kbytes: 2 ** 10,
+  mbytes: 2 ** 20,
+};
+const TOKEN_UNITS = {
+  tokens: 1,
 };
 
 function convertValue(value, srcRatio, dstRatio) {
@@ -39,9 +42,10 @@ function convertValue(value, srcRatio, dstRatio) {
 function unitConversion(value, srcUnit, dstUnit) {
   if (srcUnit in TIME_UNITS) {
     return convertValue(value, TIME_UNITS[srcUnit], TIME_UNITS[dstUnit]);
-  }
-  if (srcUnit in SIZE_UNITS) {
+  } else if (srcUnit in SIZE_UNITS) {
     return convertValue(value, SIZE_UNITS[srcUnit], SIZE_UNITS[dstUnit]);
+  } else if (srcUnit in TOKEN_UNITS) {
+    return convertValue(value, TOKEN_UNITS[srcUnit], TOKEN_UNITS[dstUnit]);
   }
   return null;
 }

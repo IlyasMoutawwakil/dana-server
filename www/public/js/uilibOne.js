@@ -51,168 +51,159 @@ function uiShowSerie(tpageType, tprojectId, tserieId) {
   //compares = tcompares;
   pageType = tpageType;
 
-  $('#modalBtnOpen').click(function() {
-    window.open("/serie?" + projectId + "?" + encodeURIComponent(serieId), "_blank");
+  $("#modalBtnOpen").click(function () {
+    window.open(
+      "/serie?" + projectId + "?" + encodeURIComponent(serieId),
+      "_blank"
+    );
   });
-  socket.on('receiveOneSerie', function(req) {
-    if (debug)
-      console.log('receiveOneSerie', req);
+  socket.on("receiveOneSerie", function (req) {
+    if (debug) console.log("receiveOneSerie", req);
     NProgress.inc();
 
     if (req.serie === undefined)
-      return alert('receiveOneSerie undefined for ', serieId);
-    if (req.serie === 'dontexist')
-      return alert('receiveOneSerie dontexist for ', serieId);
+      return alert("receiveOneSerie undefined for ", serieId);
+    if (req.serie === "dontexist")
+      return alert("receiveOneSerie dontexist for ", serieId);
     serie = req.serie;
     if (displayUnit === null) {
       // Try to use a larger unit so that the number is smaller and nicer to read.
-      if (serie.serieUnit === 'ns')
-        displayUnit = 'ms'
-      else if  (serie.serieUnit === 'bytes')
-        displayUnit = 'kbytes'
-      else
-        displayUnit = serie.serieUnit
+      if (serie.serieUnit === "ns") displayUnit = "ms";
+      else if (serie.serieUnit === "bytes") displayUnit = "kbytes";
+      else displayUnit = serie.serieUnit;
     }
 
-    if (pageType === 'showOneSerie')
+    if (pageType === "showOneSerie")
       if (loaded) {
         uiLibOneReadyToProcessData();
         return;
       }
 
-    if (pageType === 'showOneSerie') {
+    if (pageType === "showOneSerie") {
       testsBuilds = [];
       if (serie.failedBuilds) {
         var k = Object.keys(serie.failedBuilds);
-        k.sort(function(a, b) {
-          return b * 1 - a * 1
+        k.sort(function (a, b) {
+          return b * 1 - a * 1;
         });
-        for (var ii in k)
-          testsBuilds.push(k[ii])
+        for (var ii in k) testsBuilds.push(k[ii]);
       }
       if (serie.samples) {
         var k = Object.keys(serie.samples);
-        k.sort(function(a, b) {
-          return b * 1 - a * 1
+        k.sort(function (a, b) {
+          return b * 1 - a * 1;
         });
         for (var ii in k) {
           if (ii > 10) break;
-          testsBuilds.push(k[ii])
+          testsBuilds.push(k[ii]);
         }
       } else {
         if (serie.lastPassingBuildId) {
-          testsBuilds.push(serie.lastPassingBuildId)
+          testsBuilds.push(serie.lastPassingBuildId);
         }
       }
     }
-    if (pageType === 'showOneSerie') {
-      socket.emit('getFileInfo', {
+    if (pageType === "showOneSerie") {
+      socket.emit("getFileInfo", {
         projectId: projectId,
-        fileId: 'builds'
+        fileId: "builds",
       });
-      socket.emit('getFileInfo', {
-        projectId: 'admin',
-        fileId: 'compares'
+      socket.emit("getFileInfo", {
+        projectId: "admin",
+        fileId: "compares",
       });
-      socket.emit('getFileInfo', {
-        projectId: 'admin',
-        fileId: 'projects'
+      socket.emit("getFileInfo", {
+        projectId: "admin",
+        fileId: "projects",
       });
-    } else
-      processBuilds();
+    } else processBuilds();
   });
 
-  if (pageType === 'showOneSerie') {
-    socket.on('receiveFileInfo', function(req) {
-      if (debug)
-        console.log('receiveFileInfo', req);
+  if (pageType === "showOneSerie") {
+    socket.on("receiveFileInfo", function (req) {
+      if (debug) console.log("receiveFileInfo", req);
       NProgress.inc();
-      if (req.fileId === 'projects')
-        projects = req.file;
-      if (req.fileId === 'builds')
-        builds = req.file;
-      if (req.fileId === 'compares')
-        compares = req.file;
-      if ((builds !== undefined) && (compares !== undefined) && (projects !== undefined)) {
+      if (req.fileId === "projects") projects = req.file;
+      if (req.fileId === "builds") builds = req.file;
+      if (req.fileId === "compares") compares = req.file;
+      if (
+        builds !== undefined &&
+        compares !== undefined &&
+        projects !== undefined
+      ) {
         processBuilds();
       }
     });
 
-    socket.on('receiveUpdateAnalyseDone', function(req) {
-      if (debug)
-        console.log('receiveUpdateAnalyseDone', req);
+    socket.on("receiveUpdateAnalyseDone", function (req) {
+      if (debug) console.log("receiveUpdateAnalyseDone", req);
       NProgress.start();
-      socket.emit('getOneSerie', {
+      socket.emit("getOneSerie", {
         projectId: projectId,
-        serieId: serieId
+        serieId: serieId,
       });
     });
 
-    socket.on('serieAddCommentDone', function(req) {
-      if (debug)
-        console.log('serieAddCommentDone', req);
+    socket.on("serieAddCommentDone", function (req) {
+      if (debug) console.log("serieAddCommentDone", req);
       NProgress.start();
-      socket.emit('getOneSerie', {
+      socket.emit("getOneSerie", {
         projectId: projectId,
-        serieId: serieId
+        serieId: serieId,
       });
     });
 
-    socket.on('serieUpdateSeriesStateDone', function(req) {
-      if (debug)
-        console.log('serieUpdateSeriesStateDone', req);
+    socket.on("serieUpdateSeriesStateDone", function (req) {
+      if (debug) console.log("serieUpdateSeriesStateDone", req);
       NProgress.start();
-      socket.emit('getOneSerie', {
+      socket.emit("getOneSerie", {
         projectId: projectId,
-        serieId: serieId
+        serieId: serieId,
       });
     });
   }
-  socket.emit('getOneSerie', {
+  socket.emit("getOneSerie", {
     projectId: projectId,
-    serieId: serieId
+    serieId: serieId,
   });
 
-  socket.on('serverError', function(req) {
-    if (debug)
-      console.log('serverError', req);
-    alert(req)
+  socket.on("serverError", function (req) {
+    if (debug) console.log("serverError", req);
+    alert(req);
   });
 
   function processBuilds() {
-    if (pageType !== 'statusCompares') {
+    if (pageType !== "statusCompares") {
       var k = Object.keys(builds);
-      k.sort(function(a, b) {
-        return a * 1 - b * 1
+      k.sort(function (a, b) {
+        return a * 1 - b * 1;
       });
       var a = [];
       for (var ii in k) {
-        a.push(builds[k[ii]])
+        a.push(builds[k[ii]]);
       }
       buildsSorted = a;
 
-      if (pageType === 'showOneSerie')
-        loaded = true;
+      if (pageType === "showOneSerie") loaded = true;
     }
     uiLibOneReadyToProcessData();
-  };
+  }
 
-  if ((pageType === 'showOneSerie') || (pageType === 'statusSeries')) {
-    $('#btnSeries').click(function() {
-      $('#btnSeries').addClass('active')
-      $('#btnRaw').removeClass('active')
+  if (pageType === "showOneSerie" || pageType === "statusSeries") {
+    $("#btnSeries").click(function () {
+      $("#btnSeries").addClass("active");
+      $("#btnRaw").removeClass("active");
       drawAnalyseGraph();
     });
-    $('#btnRaw').click(function() {
-      $('#btnRaw').addClass('active')
-      $('#btnSeries').removeClass('active')
+    $("#btnRaw").click(function () {
+      $("#btnRaw").addClass("active");
+      $("#btnSeries").removeClass("active");
       drawRawGraph();
     });
   }
 
-  if (debug) console.log('socket.emit ', 'getOneSerie');
+  if (debug) console.log("socket.emit ", "getOneSerie");
   NProgress.start();
-
 }
 
 function drawRawGraph() {
@@ -220,131 +211,113 @@ function drawRawGraph() {
     var d = [];
     var e;
     for (var ii = 0; ii < data.length; ii++) {
-      if (serie.analyse.benchmark)
-        e = [ii, data[ii]];
+      if (serie.analyse.benchmark) e = [ii, data[ii]];
       if (serie.analyse.test) {
-        if (data[ii])
-          e = [ii, 3];
-        else
-          e = [ii, 2];
+        if (data[ii]) e = [ii, 3];
+        else e = [ii, 2];
       }
       d.push(e);
     }
     return d;
-  };
+  }
   var stackedGraph = true;
   if (serie.analyse.test) stackedGraph = false;
 
-  var colors = ['#3557B2'];
+  var colors = ["#3557B2"];
 
-  var e = document.getElementById('elt_dygraph');
+  var e = document.getElementById("elt_dygraph");
   var d = dataConvert(serieData);
   eltg = new Dygraph(e, d, {
     axes: {
       x: {
         drawGrid: false,
         drawAxis: true,
-        axisLabelFormatter: function(d, gran, opts) {
+        axisLabelFormatter: function (d, gran, opts) {
           if (serieBuilds[d] !== undefined)
             if (builds[serieBuilds[d]] !== undefined)
               return builds[serieBuilds[d]].buildId;
-        }
+        },
       },
       y: {
         drawGrid: false,
         drawAxis: true,
-        axisLabelFormatter: function(d, gran, opts) {
+        axisLabelFormatter: function (d, gran, opts) {
           if (serie.analyse.benchmark) return d;
-          if (d === 2)
-            return 'Failing'
-          if (d === 3)
-            return 'Passing';
-          return '';
-        }
-      }
+          if (d === 2) return "Failing";
+          if (d === 3) return "Passing";
+          return "";
+        },
+      },
     },
     strokeWidth: 1.0,
-    labelsDiv: '',
-    labels: [
-      '', 'raw'
-    ],
+    labelsDiv: "",
+    labels: ["", "raw"],
     drawPoints: true,
     pointSize: 4,
     highlightCircleSize: 6,
-    legend: '',
+    legend: "",
     legendFormatter: legendFormatter,
     stackedGraph: stackedGraph,
     connectSeparatedPoints: true,
     colors: colors,
-    highlightCallback: function(e, x, pts, row) {
+    highlightCallback: function (e, x, pts, row) {
       globalSetSelectionRaw(row);
     },
-    unhighlightCallback: function(e) {}
+    unhighlightCallback: function (e) {},
   });
 
   globalSetSelectionRaw(serieData.length - 1);
 
-  $(document).ready(function() {
-    if (debug) console.log('graph is ready');
+  $(document).ready(function () {
+    if (debug) console.log("graph is ready");
     eltg.resize();
   });
-  window.onresize = function(event) {
-    if (debug) console.log('onresize');
+  window.onresize = function (event) {
+    if (debug) console.log("onresize");
     eltg.resize();
   };
 
   function globalSetSelectionRaw(idx) {
     eltg.setSelection(idx);
     var v = serieData[idx];
-    var e = document.getElementById('valueinfo');
-    var h = '<center>Value = <b>'
+    var e = document.getElementById("valueinfo");
+    var h = "<center>Value = <b>";
     if (serie.analyse.test) {
-      if (v === null)
-        h += '--- ---';
-      else
-      if (v)
-        h += 'Passing';
-      else
-        h += 'Failing'
-      h += '</b></center>';
+      if (v === null) h += "--- ---";
+      else if (v) h += "Passing";
+      else h += "Failing";
+      h += "</b></center>";
       e.innerHTML = h;
-      globalShowBuildInfo(idx)
+      globalShowBuildInfo(idx);
       return;
     }
 
     if (idx === 0) {
-      if (v === null)
-        h += '--- ---';
-      else
-        h += v;
+      if (v === null) h += "--- ---";
+      else h += v;
     } else {
       var previousV = serieData[idx - 1];
 
-      if (v === null)
-        h += '--- ---';
+      if (v === null) h += "--- ---";
       else {
-        if (previousV === null)
-          h += v + ' ---';
+        if (previousV === null) h += v + " ---";
         else {
-          var diff = (v - previousV);
+          var diff = v - previousV;
           var p = 0;
-          if (diff !== 0)
-            p = diff / previousV * 100;
+          if (diff !== 0) p = (diff / previousV) * 100;
           if (p > 0)
-            h += v + ' (+' + diff.toFixed(2) + ' +' + p.toFixed(2) + '%)';
-          else
-            h += v + ' (' + diff.toFixed(2) + ' ' + p.toFixed(2) + '%)';
+            h += v + " (+" + diff.toFixed(2) + " +" + p.toFixed(2) + "%)";
+          else h += v + " (" + diff.toFixed(2) + " " + p.toFixed(2) + "%)";
         }
       }
     }
-    h += '</b></center>';
+    h += "</b></center>";
     e.innerHTML = h;
-    globalShowBuildInfo(idx)
+    globalShowBuildInfo(idx);
   }
 }
 
 function drawBenchmarkGraph() {
-
   if (!serie.analyse.benchmark) return;
 
   var regArray = [];
@@ -352,22 +325,20 @@ function drawBenchmarkGraph() {
 
   function createRegressionArray() {
     if (convertAnalyseResult.summary.error) {
-      for (var ii = 0; ii < serieData.length; ii++)
-        regArray.push(undefined);
+      for (var ii = 0; ii < serieData.length; ii++) regArray.push(undefined);
     } else {
       var a = convertAnalyseResult.averages;
       var currentIndex = 0;
       for (var ii = 0; ii < serieData.length; ii++) {
-        if (ii < a[currentIndex].start)
-          regArray.push(undefined);
+        if (ii < a[currentIndex].start) regArray.push(undefined);
         else {
           if (ii > a[currentIndex].end) currentIndex++;
           regArray.push(a[currentIndex]);
         }
       }
     }
-    if (debug) console.log('regArray', regArray);
-  };
+    if (debug) console.log("regArray", regArray);
+  }
 
   // function createAnnotationArray() {
   //   if (serie.analyseResult.summary.error) return;
@@ -420,13 +391,26 @@ function drawBenchmarkGraph() {
     var d = [];
     for (var ii = 0; ii < serieData.length; ii++) {
       var e;
-      if (regArray[ii] === undefined)
-        e = [ii, serieData[ii], null, null, null]
+      if (regArray[ii] === undefined) e = [ii, serieData[ii], null, null, null];
       else {
         if (regArray[ii].success)
-          e = [ii, serieData[ii], convertAnalyseResult.averages[convertAnalyseResult.details.first].average, regArray[ii].average, null];
+          e = [
+            ii,
+            serieData[ii],
+            convertAnalyseResult.averages[convertAnalyseResult.details.first]
+              .average,
+            regArray[ii].average,
+            null,
+          ];
         else
-          e = [ii, serieData[ii], convertAnalyseResult.averages[convertAnalyseResult.details.first].average, null, regArray[ii].average];
+          e = [
+            ii,
+            serieData[ii],
+            convertAnalyseResult.averages[convertAnalyseResult.details.first]
+              .average,
+            null,
+            regArray[ii].average,
+          ];
         d.push(e);
       }
     }
@@ -438,35 +422,78 @@ function drawBenchmarkGraph() {
       }
     } else {
       var a = convertAnalyseResult.averages;
-      var baseValue = convertAnalyseResult.averages[convertAnalyseResult.details.first].average;
+      var baseValue =
+        convertAnalyseResult.averages[convertAnalyseResult.details.first]
+          .average;
       var currentIndex = 0;
       var firstShown = false;
       var s = convertAnalyseResult.averages[0].start;
       if (s != 0)
         for (var ii = 0; ii < s; ii++) {
-          d.push([currentIndex, serieData[currentIndex], null, null, null, null]);
+          d.push([
+            currentIndex,
+            serieData[currentIndex],
+            null,
+            null,
+            null,
+            null,
+          ]);
           currentIndex++;
         }
       for (var indexAverage = 0; indexAverage < a.length; indexAverage++) {
-        if (debug) console.log('averages index', indexAverage);
+        if (debug) console.log("averages index", indexAverage);
         var avg = convertAnalyseResult.averages[indexAverage];
         for (var jj = avg.start; jj <= avg.end; jj++) {
-          if (debug) console.log('averages index start end', avg.start, avg.end);
+          if (debug)
+            console.log("averages index start end", avg.start, avg.end);
           if (convertAnalyseResult.details.first === indexAverage) {
             firstShown = true;
-            e = [currentIndex, serieData[currentIndex], avg.average, null, null, null];
+            e = [
+              currentIndex,
+              serieData[currentIndex],
+              avg.average,
+              null,
+              null,
+              null,
+            ];
           } else {
             if (!firstShown) {
-              e = [currentIndex, serieData[currentIndex], null, null, null, null];
+              e = [
+                currentIndex,
+                serieData[currentIndex],
+                null,
+                null,
+                null,
+                null,
+              ];
             } else {
-              if (avg.status == 'similar')
-                e = [currentIndex, serieData[currentIndex], baseValue, avg.average, null, null];
-              else
-              if (avg.status == 'regression')
-                e = [currentIndex, serieData[currentIndex], baseValue, null, avg.average, null];
-              else
-              if (avg.status == 'improvement')
-                e = [currentIndex, serieData[currentIndex], baseValue, null, null, avg.average];
+              if (avg.status == "similar")
+                e = [
+                  currentIndex,
+                  serieData[currentIndex],
+                  baseValue,
+                  avg.average,
+                  null,
+                  null,
+                ];
+              else if (avg.status == "regression")
+                e = [
+                  currentIndex,
+                  serieData[currentIndex],
+                  baseValue,
+                  null,
+                  avg.average,
+                  null,
+                ];
+              else if (avg.status == "improvement")
+                e = [
+                  currentIndex,
+                  serieData[currentIndex],
+                  baseValue,
+                  null,
+                  null,
+                  avg.average,
+                ];
             }
           }
           d.push(e);
@@ -474,28 +501,28 @@ function drawBenchmarkGraph() {
         }
       }
     }
-    if (debug) console.log('Array for graph', d);
+    if (debug) console.log("Array for graph", d);
 
     return d;
-  };
+  }
 
   function checkState(s) {
     if (s.analyseResult.averages[s.analyseResult.averages.length - 1].success)
       return true;
     else {
-      if (debug) console.log(s)
+      if (debug) console.log(s);
       return false;
     }
   }
   var colorSets = [
-    '#3557B2', // raw
-    '#B16EE4', // base
-    '#8AE234', // success
-    '#EE1111', // regression
-    '#8AE234' // improvement
-  ]
+    "#3557B2", // raw
+    "#B16EE4", // base
+    "#8AE234", // success
+    "#EE1111", // regression
+    "#8AE234", // improvement
+  ];
 
-  var e = document.getElementById('elt_dygraph');
+  var e = document.getElementById("elt_dygraph");
   var d = dataConvert();
 
   eltg = new Dygraph(e, d, {
@@ -503,79 +530,85 @@ function drawBenchmarkGraph() {
       x: {
         drawGrid: false,
         drawAxis: true,
-        axisLabelFormatter: function(d, gran, opts) {
+        axisLabelFormatter: function (d, gran, opts) {
           if (serieBuilds[d] !== undefined)
             if (builds[serieBuilds[d]] !== undefined)
               return builds[serieBuilds[d]].buildId;
-        }
+        },
       },
       y: {
         drawGrid: false,
-        drawAxis: true
-      }
+        drawAxis: true,
+      },
     },
     series: {
-      'raw': {
+      raw: {
         strokeWidth: 2,
         drawPoints: true,
         pointSize: 4,
-        highlightCircleSize: 5
+        highlightCircleSize: 5,
       },
-      'base': {
+      base: {
         strokeWidth: 2,
         drawPoints: false,
         pointSize: 2,
-        highlightCircleSize: 4
+        highlightCircleSize: 4,
       },
-      'similar': {
+      similar: {
         strokeWidth: 2,
         drawPoints: false,
         pointSize: 2,
-        highlightCircleSize: 4
+        highlightCircleSize: 4,
       },
-      'regression': {
+      regression: {
         strokeWidth: 2,
         drawPoints: false,
         pointSize: 2,
-        highlightCircleSize: 4
+        highlightCircleSize: 4,
       },
-      'improvement': {
+      improvement: {
         strokeWidth: 2,
         drawPoints: false,
         pointSize: 2,
-        highlightCircleSize: 4
+        highlightCircleSize: 4,
       },
     },
-    labelsDiv: '',
-    labels: [
-      'builds', 'raw', 'base', 'similar', 'regression', 'improvement'
-    ],
-    legend: '',
+    labelsDiv: "",
+    labels: ["builds", "raw", "base", "similar", "regression", "improvement"],
+    legend: "",
     legendFormatter: legendFormatter,
     stackedGraph: false,
     connectSeparatedPoints: false,
     colors: colorSets,
-    highlightCallback: function(e, x, pts, row) {
+    highlightCallback: function (e, x, pts, row) {
       globalSetSelectionRegression(row);
     },
-    unhighlightCallback: function(e) {},
-    underlayCallback: function(canvas, area, g) {
+    unhighlightCallback: function (e) {},
+    underlayCallback: function (canvas, area, g) {
       if (!convertAnalyseResult.summary.error) {
         var aRange = convertAnalyseResult.details.aRange;
         var v;
         if (aRange.upIsValue) {
           v = aRange.up;
         } else {
-          v = aRange.up * convertAnalyseResult.averages[0].average / 100;
+          v = (aRange.up * convertAnalyseResult.averages[0].average) / 100;
         }
-        var xl = g.toDomCoords(convertAnalyseResult.averages[0].start, convertAnalyseResult.averages[0].average + v);
+        var xl = g.toDomCoords(
+          convertAnalyseResult.averages[0].start,
+          convertAnalyseResult.averages[0].average + v
+        );
         //console.log(v, xl)
         if (aRange.downIsValue) {
           v = aRange.down;
         } else {
-          v = aRange.down * convertAnalyseResult.averages[0].average / 100;
+          v = (aRange.down * convertAnalyseResult.averages[0].average) / 100;
         }
-        var xy = g.toDomCoords(convertAnalyseResult.averages[convertAnalyseResult.averages.length - 1].end, convertAnalyseResult.averages[0].average + v);
+        var xy = g.toDomCoords(
+          convertAnalyseResult.averages[
+            convertAnalyseResult.averages.length - 1
+          ].end,
+          convertAnalyseResult.averages[0].average + v
+        );
         //console.log(v, xy)
 
         canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
@@ -587,12 +620,12 @@ function drawBenchmarkGraph() {
   //  eltg.setAnnotations(annotationArray);
 
   globalSetSelectionRegression(serieData.length - 1);
-  $(document).ready(function() {
-    if (debug) console.log('document ready');
+  $(document).ready(function () {
+    if (debug) console.log("document ready");
     eltg.resize();
   });
-  window.onresize = function(event) {
-    if (debug) console.log('onresize');
+  window.onresize = function (event) {
+    if (debug) console.log("onresize");
     eltg.resize();
   };
 }
@@ -601,78 +634,77 @@ function showHeader() {
   if (serie.analyse === undefined) return;
 
   // samples
-  $('#topBanner_numSamples').html(Object.keys(serie.samples).length);
-  $('#topBanner_samples').show();
+  $("#topBanner_numSamples").html(Object.keys(serie.samples).length);
+  $("#topBanner_samples").show();
 
   if (serie.analyse.test) {
-    $('#topBanner_statusTest').show();
+    $("#topBanner_statusTest").show();
 
     // status
     if (convertAnalyseResult.isPassing) {
-      $('#topBanner_statusPassing').html('Passing')
-      $('#topBanner_statusPassing').addClass('green');
-      $('#topBanner_statusPassing').removeClass('red');
+      $("#topBanner_statusPassing").html("Passing");
+      $("#topBanner_statusPassing").addClass("green");
+      $("#topBanner_statusPassing").removeClass("red");
     } else {
-      $('#topBanner_statusPassing').html('Failed')
-      $('#topBanner_statusPassing').addClass('red');
-      $('#topBanner_statusPassing').removeClass('green');
-      $('#topBanner_statusPassingSince').html('Since buildId ' + convertAnalyseResult.failingSince)
+      $("#topBanner_statusPassing").html("Failed");
+      $("#topBanner_statusPassing").addClass("red");
+      $("#topBanner_statusPassing").removeClass("green");
+      $("#topBanner_statusPassingSince").html(
+        "Since buildId " + convertAnalyseResult.failingSince
+      );
     }
-    $('#topBanner_status').show();
+    $("#topBanner_status").show();
   }
 
   if (serie.analyse.benchmark) {
-    $('#topBanner_benchmark').show();
+    $("#topBanner_benchmark").show();
 
     if (Object.keys(serie.samples).length > 1) {
       // build n-1
       var v = serieData[serieData.length - 1];
-      if ((serieData.length - 2) >= 0) {
+      if (serieData.length - 2 >= 0) {
         var previousV = serieData[serieData.length - 2];
         var diff = (v - previousV).toFixed(2);
-        var p = diff / previousV * 100;
-        if (diff > 0) diff = '+' + diff;
+        var p = (diff / previousV) * 100;
+        if (diff > 0) diff = "+" + diff;
         if (p > 0)
-          $('#topBanner_lastBuildPourcent').html('+' + p.toFixed(2) + '%');
-        else
-          $('#topBanner_lastBuildPourcent').html(p.toFixed(2) + '%');
+          $("#topBanner_lastBuildPourcent").html("+" + p.toFixed(2) + "%");
+        else $("#topBanner_lastBuildPourcent").html(p.toFixed(2) + "%");
 
-        $('#topBanner_lastBuildDiff').html('Diff ' + diff);
-        $('#topBanner_lastBuild').show();
+        $("#topBanner_lastBuildDiff").html("Diff " + diff);
+        $("#topBanner_lastBuild").show();
       }
     }
 
     // regression
     if (!convertAnalyseResult.summary.error) {
       var p = convertAnalyseResult.summary.current.ratio;
-      if (p > 0)
-        $('#topBanner_analysisMain').html('+' + p.toFixed(2) + '%');
-      else
-        $('#topBanner_analysisMain').html(p.toFixed(2) + '%');
+      if (p > 0) $("#topBanner_analysisMain").html("+" + p.toFixed(2) + "%");
+      else $("#topBanner_analysisMain").html(p.toFixed(2) + "%");
 
-      if (convertAnalyseResult.summary.status === 'similar') {
-        $('#topBanner_analysisBottom').html('Similar');
-        $('#topBanner_analysisBottom').addClass('green');
-        $('#topBanner_analysisBottom').removeClass('red');
-        $('#topBanner_analysisMain').removeClass('red')
-        $('#topBanner_analysisMain').addClass('green')
+      if (convertAnalyseResult.summary.status === "similar") {
+        $("#topBanner_analysisBottom").html("Similar");
+        $("#topBanner_analysisBottom").addClass("green");
+        $("#topBanner_analysisBottom").removeClass("red");
+        $("#topBanner_analysisMain").removeClass("red");
+        $("#topBanner_analysisMain").addClass("green");
       }
-      if (convertAnalyseResult.summary.status === 'regression') {
-        $('#topBanner_analysisMain').removeClass('green')
-        $('#topBanner_analysisMain').addClass('red')
-        $('#topBanner_analysisBottom').html('Regression');
-        $('#topBanner_analysisBottom').addClass('red');
-        $('#topBanner_analysisBottom').removeClass('green');
+      if (convertAnalyseResult.summary.status === "regression") {
+        $("#topBanner_analysisMain").removeClass("green");
+        $("#topBanner_analysisMain").addClass("red");
+        $("#topBanner_analysisBottom").html("Regression");
+        $("#topBanner_analysisBottom").addClass("red");
+        $("#topBanner_analysisBottom").removeClass("green");
       }
-      if (convertAnalyseResult.summary.status === 'improvement') {
-        $('#topBanner_analysisBottom').html('Improved');
-        $('#topBanner_analysisBottom').addClass('green');
-        $('#topBanner_analysisBottom').removeClass('red');
-        $('#topBanner_analysisMain').removeClass('red')
-        $('#topBanner_analysisMain').addClass('green')
+      if (convertAnalyseResult.summary.status === "improvement") {
+        $("#topBanner_analysisBottom").html("Improved");
+        $("#topBanner_analysisBottom").addClass("green");
+        $("#topBanner_analysisBottom").removeClass("red");
+        $("#topBanner_analysisMain").removeClass("red");
+        $("#topBanner_analysisMain").addClass("green");
       }
     }
-    $('#topBanner_analysis').show();
+    $("#topBanner_analysis").show();
   }
 }
 
@@ -681,20 +713,26 @@ function drawTestGraph() {
 }
 
 function drawAnalyseGraph() {
-  if (serie.analyse.benchmark)
-    drawBenchmarkGraph();
-  if (serie.analyse.test)
-    drawTestGraph();
+  if (serie.analyse.benchmark) drawBenchmarkGraph();
+  if (serie.analyse.test) drawTestGraph();
 }
 
 function inPlaceConvertSummaryValue(summaryValue, srcUnit, dstUnit) {
   if (summaryValue["average"] !== undefined) {
     summaryValue["average"] = unitConversionFixedPoint(
-      summaryValue["average"], srcUnit, dstUnit, 2);
+      summaryValue["average"],
+      srcUnit,
+      dstUnit,
+      2
+    );
   }
   if (summaryValue["diff"] !== undefined) {
     summaryValue["diff"] = unitConversionFixedPoint(
-      summaryValue["diff"], srcUnit, dstUnit, 2);
+      summaryValue["diff"],
+      srcUnit,
+      dstUnit,
+      2
+    );
   }
 }
 
@@ -725,7 +763,10 @@ function updateAnalyse() {
   convertAnalyseResult = structuredClone(serie.analyseResult);
   if (convertAnalyseResult) {
     inplaceConvertAnalyseResult(
-      convertAnalyseResult, serie.serieUnit, displayUnit);
+      convertAnalyseResult,
+      serie.serieUnit,
+      displayUnit
+    );
   }
 }
 
@@ -740,7 +781,11 @@ function uiLibOneReadyToProcessData() {
     var b = [];
     for (var ii in k) {
       convertedSerieSamples[k[ii]] = unitConversionFixedPoint(
-        convertedSerieSamples[k[ii]], serie.serieUnit, displayUnit, 2);
+        convertedSerieSamples[k[ii]],
+        serie.serieUnit,
+        displayUnit,
+        2
+      );
       a.push(convertedSerieSamples[k[ii]]);
       b.push(k[ii]);
     }
@@ -751,149 +796,161 @@ function uiLibOneReadyToProcessData() {
   convertAnalyseResult = structuredClone(serie.analyseResult);
   if (convertAnalyseResult) {
     inplaceConvertAnalyseResult(
-      convertAnalyseResult, serie.serieUnit, displayUnit);
+      convertAnalyseResult,
+      serie.serieUnit,
+      displayUnit
+    );
   }
 
-  if (debug) console.log('uiLibOneReadyToProcessData');
+  if (debug) console.log("uiLibOneReadyToProcessData");
   NProgress.done();
 
   if (serie.analyse.test)
-    $('#modalSerieType').html('Show test from ' + serie.projectId + ' project');
+    $("#modalSerieType").html("Show test from " + serie.projectId + " project");
   else
-    $('#modalSerieType').html('Show benchmark from ' + serie.projectId + ' project');
+    $("#modalSerieType").html(
+      "Show benchmark from " + serie.projectId + " project"
+    );
 
-  var h = serie.serieName + '<small>';
-  if (serie.description)
-    h += '<br>' + serie.description;
-  if (serie.infos)
-    h += '<br>' + JSON.stringify(serie.infos);
-  h += '</small>'
+  var h = serie.serieName + "<small>";
+  if (serie.description) h += "<br>" + serie.description;
+  if (serie.infos) h += "<br>" + JSON.stringify(serie.infos);
+  h += "</small>";
 
-  $('#modalSerieId').html(h);
+  $("#modalSerieId").html(h);
 
-  if (pageType === 'showOneSerie') {
+  if (pageType === "showOneSerie") {
     showHeader();
   }
 
-  $('#rowForSampleSerie').show();
-  $('#btnSeries').show()
-  $('#btnRaw').show()
-  $('#btnSeries').addClass('active')
-  $('#btnRaw').removeClass('active')
+  $("#rowForSampleSerie").show();
+  $("#btnSeries").show();
+  $("#btnRaw").show();
+  $("#btnSeries").addClass("active");
+  $("#btnRaw").removeClass("active");
   drawAnalyseGraph();
 
-  if (pageType === 'showOneSerie') {
+  if (pageType === "showOneSerie") {
     initAnalysePanel();
     setAnalysePanel();
-    $('#analyseFormRestore').click(function() {
+    $("#analyseFormRestore").click(function () {
       unselectAnalysePanel();
       serie.analyse = savedAnalyse;
       setAnalysePanel();
       updateAnalyse();
       console.log(serie.analyseResult);
       drawAnalyseGraph();
-      $('#analyseChanged').hide();
+      $("#analyseChanged").hide();
     });
   }
 
   dumpRegressionTable();
   dumpComparesTable();
 
-  if (pageType === 'showOneSerie') {
+  if (pageType === "showOneSerie") {
     if (dataTableObject === undefined)
       if (serie.url) {
-        var h = '';
+        var h = "";
         var k = Object.keys(serie.url);
-        k.sort(function(a, b) {
-          return b * 1 - a * 1
+        k.sort(function (a, b) {
+          return b * 1 - a * 1;
         });
         if (k.length > 0) {
           for (var ii in k) {
             var c = serie.url[k[ii]];
-            h += '<tr>';
-            h += '<td>';
+            h += "<tr>";
+            h += "<td>";
             b = builds[k[ii]];
-            h += b.buildId + ' - ' + b.infos.abbrevHash + ' - ' + b.infos.authorName + ' - ' + b.infos.subject;
-            h + '</td>';
-            h += '<td><center>';
+            h +=
+              b.buildId +
+              " - " +
+              b.infos.abbrevHash +
+              " - " +
+              b.infos.authorName +
+              " - " +
+              b.infos.subject;
+            h + "</td>";
+            h += "<td><center>";
             h += '<div class="btn-group">';
-            h += '<button type="button" onclick="showOpenSpongelinkBuild(' + k[ii] + ')" class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
-            h + '</div></center></td>';
-            h += '</tr>';
+            h +=
+              '<button type="button" onclick="showOpenSpongelinkBuild(' +
+              k[ii] +
+              ')" class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+            h + "</div></center></td>";
+            h += "</tr>";
           }
-          $('#table_sponge').html(h);
-          dataTableObject = $('#datatable_sponge').DataTable({
-            "language": {
-              "decimal": "."
+          $("#table_sponge").html(h);
+          dataTableObject = $("#datatable_sponge").DataTable({
+            language: {
+              decimal: ".",
             },
             paging: true, // paging: true if > to 10 entries
             info: true,
-            "bFilter": true,
-            "columnDefs": [{
-              "targets": 'no-sort',
-              "orderable": false
-            }],
-            "order": [
-              [1, "desc"]
-            ]
+            bFilter: true,
+            columnDefs: [
+              {
+                targets: "no-sort",
+                orderable: false,
+              },
+            ],
+            order: [[1, "desc"]],
           });
-          $('#spongeLinks').show();
+          $("#spongeLinks").show();
         }
       }
   }
 
-  if (pageType === 'showOneSerie') {
-    let selector = $('#serieUnit');
+  if (pageType === "showOneSerie") {
+    let selector = $("#serieUnit");
     let timeUnits = ["ms", "us", "ns"];
     let sizeUnits = ["mbytes", "kbytes", "bytes"];
+    let tokenUnits = ["tokens"];
     let unitOptions = [];
     if (timeUnits.includes(displayUnit)) {
       unitOptions = timeUnits;
     } else if (sizeUnits.includes(displayUnit)) {
       unitOptions = sizeUnits;
+    } else if (tokenUnits.includes(displayUnit)) {
+      unitOptions = tokenUnits;
     }
     selector.empty();
     for (let unit of unitOptions) {
-      selector.append($('<option>', {
-        value: unit,
-        text: unit
-      }));
+      selector.append(
+        $("<option>", {
+          value: unit,
+          text: unit,
+        })
+      );
     }
     selector.val(displayUnit);
   }
 
-  var h = '';
+  var h = "";
   if (serie.comments) {
     for (var ii = serie.comments.length - 1; ii >= 0; ii--) {
       var c = serie.comments[ii];
       var d = new Date(c.date);
-      h += '<b>';
-      h += '#' + ii;
-      if (c.ldap)
-        if (c.ldap !== '')
-          h += ' - ' + c.ldap;
-      if (c.buildId)
-        if (c.buildId !== '')
-          h += ' - BuildId ' + c.buildId;
-      h += ' - ' + d.toLocaleString();
-      h += '</b>';
-      h += '<br>';
-      var s = '';
+      h += "<b>";
+      h += "#" + ii;
+      if (c.ldap) if (c.ldap !== "") h += " - " + c.ldap;
+      if (c.buildId) if (c.buildId !== "") h += " - BuildId " + c.buildId;
+      h += " - " + d.toLocaleString();
+      h += "</b>";
+      h += "<br>";
+      var s = "";
       for (var jj in c.text) {
-        if (c.text[jj] === '\n') s += '<br />'
-        else
-        if (c.text[jj] === '\r') s += '<br />'
-        else s += c.text[jj]
+        if (c.text[jj] === "\n") s += "<br />";
+        else if (c.text[jj] === "\r") s += "<br />";
+        else s += c.text[jj];
       }
       h += s;
-      h += '<br>';
+      h += "<br>";
     }
-  } else
-    h += 'No comments';
+  } else h += "No comments";
 
-  $('#commentsArea').html(h);
-  $('#commentsArea').linkify({
-    target: "_blank"
+  $("#commentsArea").html(h);
+  $("#commentsArea").linkify({
+    target: "_blank",
   });
 }
 
@@ -921,7 +978,7 @@ function serieGetMinRange() {
   console.log('PRECISE', 'min=', min, 'max=', max, 'minRange=', currentRange);
   */
   let maxit = 0;
-  max = (max - min);
+  max = max - min;
   min = 0;
   currentRange = Math.floor((max - min) / 2);
   while (maxit < 100000) {
@@ -942,53 +999,68 @@ function serieGetMinRange() {
       }
     }
   }
-  if (debug) console.log('DICHOTOMIC', 'min=', min, 'max=', max, 'minRange=', currentRange);
+  if (debug)
+    console.log(
+      "DICHOTOMIC",
+      "min=",
+      min,
+      "max=",
+      max,
+      "minRange=",
+      currentRange
+    );
   serie.analyse.benchmark.range = max;
 
   //if (preciseRange !== max) alert('New range is different PRECISE:' + preciseRange + ', new:' + max);
-  socket.emit('serieUpdateAnalyse', {
+  socket.emit("serieUpdateAnalyse", {
     projectId: projectId,
     serieId: serieId,
     analyse: serie.analyse,
     comment: {
-      text: 'Computing range to ' + serie.analyse.benchmark.range + ' to manage noise'
-    }
+      text:
+        "Computing range to " +
+        serie.analyse.benchmark.range +
+        " to manage noise",
+    },
   });
 }
 
 function serieChangeState(sel) {
-  console.log('serieChangeState', sel)
+  console.log("serieChangeState", sel);
 
   function setBaseLast(textComment) {
-    console.log('serieChangeState', sel)
-    var newBase = serieBuilds[serie.analyseResult.averages[serie.analyseResult.averages.length - 1].start];
+    console.log("serieChangeState", sel);
+    var newBase =
+      serieBuilds[
+        serie.analyseResult.averages[serie.analyseResult.averages.length - 1]
+          .start
+      ];
     serie.analyse.base = newBase;
     updateAnalyse();
     showHeader();
     drawAnalyseGraph();
-    socket.emit('serieUpdateAnalyse', {
+    socket.emit("serieUpdateAnalyse", {
       projectId: projectId,
       serieId: serieId,
       analyse: serie.analyse,
       comment: {
-        text: textComment
-      }
+        text: textComment,
+      },
     });
   }
-  if (sel.value === 'regressionIntended') {
-    console.log('serieChangeState', sel.value)
-    setBaseLast('Regression Intended behavior, changing base');
-  } else
-  if (sel.value === 'improvementConfirmed') {
-    setBaseLast('Improvement Confirmed, changing base');
-  } else if (sel.value === 'regressionNoisy') {
+  if (sel.value === "regressionIntended") {
+    console.log("serieChangeState", sel.value);
+    setBaseLast("Regression Intended behavior, changing base");
+  } else if (sel.value === "improvementConfirmed") {
+    setBaseLast("Improvement Confirmed, changing base");
+  } else if (sel.value === "regressionNoisy") {
     serieGetMinRange();
-  } else if (sel.value === 'improvementNoisy') {
+  } else if (sel.value === "improvementNoisy") {
     serieGetMinRange();
-  } else if (sel.value === 'similarNoisy') {
+  } else if (sel.value === "similarNoisy") {
     serieGetMinRange();
   } else {
-    socket.emit('serieUpdateSeriesState', {
+    socket.emit("serieUpdateSeriesState", {
       projectId: projectId,
       serieId: serieId,
       state: sel.value,
@@ -998,22 +1070,21 @@ function serieChangeState(sel) {
 }
 
 function serieChangeStateCompare(sel, compareId) {
-  socket.emit('serieUpdateSeriesState', {
+  socket.emit("serieUpdateSeriesState", {
     projectId: projectId,
     serieId: serieId,
     state: sel.value,
-    compareId: compareId
+    compareId: compareId,
   });
   serie.state.compares[compareId] = sel.value;
 }
 
 function changeAssignee(sel, compareId) {
-
-  socket.emit('serieUpdateAssignee', {
+  socket.emit("serieUpdateAssignee", {
     projectId: projectId,
     serieId: serieId,
     assignee: sel.value,
-    compareId: compareId
+    compareId: compareId,
   });
   if (compareId) {
     serie.assignee.compares[compareId] = sel.value;
@@ -1023,403 +1094,424 @@ function changeAssignee(sel, compareId) {
 }
 
 function getAssigneeTd(assignee, compareId) {
-  let h = '';
+  let h = "";
   h = '<td data-order="' + assignee + '" data-filter="' + assignee + '">';
   if (compareId)
-    h += '<select name="assignee" onchange="changeAssignee(this,\'' + compareId + '\');">';
-  else
-    h += '<select name="assignee" onchange="changeAssignee(this);">';
+    h +=
+      '<select name="assignee" onchange="changeAssignee(this,\'' +
+      compareId +
+      "');\">";
+  else h += '<select name="assignee" onchange="changeAssignee(this);">';
   h += '<option value="">None</option>';
-  var k = projects[projectId].users.split(',');
+  var k = projects[projectId].users.split(",");
   for (var ii = 0; ii < k.length; ii++) {
-    h += '<option ';
-    if (assignee === k[ii])
-      h += 'selected ';
-    h += 'value="' + k[ii] + '">' + k[ii] + '</option>';
+    h += "<option ";
+    if (assignee === k[ii]) h += "selected ";
+    h += 'value="' + k[ii] + '">' + k[ii] + "</option>";
   }
-  h += '</select></td>';
-  return (h);
+  h += "</select></td>";
+  return h;
 }
 
 function testsGetStateTdDesc(state) {
-  let h = '';
+  let h = "";
   h = '<td data-order="' + state + '" data-filter="' + state + '">';
   h += '<select name="state" onchange="serieChangeState(this);">';
 
-  if (state.indexOf('failing') !== -1) {
-    h += '<option ';
-    if (state === 'failingNeedstriage')
-      h += 'selected ';
-    h += 'value="failingNeedstriage">Needs Triage</option>'
+  if (state.indexOf("failing") !== -1) {
+    h += "<option ";
+    if (state === "failingNeedstriage") h += "selected ";
+    h += 'value="failingNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'failingConfirmed')
-      h += 'selected ';
-    h += 'value="failingConfirmed">Confirmed</option>'
+    h += "<option ";
+    if (state === "failingConfirmed") h += "selected ";
+    h += 'value="failingConfirmed">Confirmed</option>';
 
     if (!projects[projectId].useBugTracker) {
-      h += '<option ';
-      if (state === 'failingAssigned')
-        h += 'selected ';
-      h += 'value="failingAssigned">Assigned</option>'
+      h += "<option ";
+      if (state === "failingAssigned") h += "selected ";
+      h += 'value="failingAssigned">Assigned</option>';
 
-      h += '<option ';
-      if (state === 'failingFixed')
-        h += 'selected ';
-      h += 'value="failingFixed">Fixed</option>'
+      h += "<option ";
+      if (state === "failingFixed") h += "selected ";
+      h += 'value="failingFixed">Fixed</option>';
     }
   } else {
-    h += '<option ';
-    if (state === 'passing')
-      h += 'selected ';
-    h += 'value="passing">Passing</option>'
+    h += "<option ";
+    if (state === "passing") h += "selected ";
+    h += 'value="passing">Passing</option>';
   }
 
-  h += '</select></td>';
+  h += "</select></td>";
 
-  return (h);
+  return h;
 }
 
 function seriesGetStateTdDesc(state) {
-  let h = '';
+  let h = "";
   h = '<td data-order="' + state + '" data-filter="' + state + '">';
   h += '<select name="state" onchange="serieChangeState(this);">';
 
-  if (state.indexOf('regression') !== -1) {
-    h += '<option ';
-    if (state === 'regressionNeedstriage')
-      h += 'selected ';
-    h += 'value="regressionNeedstriage">Needs Triage</option>'
+  if (state.indexOf("regression") !== -1) {
+    h += "<option ";
+    if (state === "regressionNeedstriage") h += "selected ";
+    h += 'value="regressionNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'regressionNoisy')
-      h += 'selected ';
-    h += 'value="regressionNoisy">Noisy similar</option>'
+    h += "<option ";
+    if (state === "regressionNoisy") h += "selected ";
+    h += 'value="regressionNoisy">Noisy similar</option>';
 
-    h += '<option ';
-    if (state === 'regressionConfirmed')
-      h += 'selected ';
-    h += 'value="regressionConfirmed">Regression confirmed</option>'
+    h += "<option ";
+    if (state === "regressionConfirmed") h += "selected ";
+    h += 'value="regressionConfirmed">Regression confirmed</option>';
 
     if (!projects[projectId].useBugTracker) {
-      h += '<option ';
-      if (state === 'regressionAssigned')
-        h += 'selected ';
-      h += 'value="regressionAssigned">Assigned</option>'
+      h += "<option ";
+      if (state === "regressionAssigned") h += "selected ";
+      h += 'value="regressionAssigned">Assigned</option>';
 
-      h += '<option ';
-      if (state === 'regressionFixed')
-        h += 'selected ';
-      h += 'value="regressionFixed">Fixed</option>'
+      h += "<option ";
+      if (state === "regressionFixed") h += "selected ";
+      h += 'value="regressionFixed">Fixed</option>';
     }
 
-    h += '<option ';
-    if (state === 'regressionIntended')
-      h += 'selected ';
-    h += 'value="regressionIntended">Intended behavior</option>'
+    h += "<option ";
+    if (state === "regressionIntended") h += "selected ";
+    h += 'value="regressionIntended">Intended behavior</option>';
   }
 
-  if (state.indexOf('improvement') !== -1) {
-    h += '<option ';
-    if (state === 'improvementNeedstriage')
-      h += 'selected ';
-    h += 'value="improvementNeedstriage">Needs Triage</option>'
+  if (state.indexOf("improvement") !== -1) {
+    h += "<option ";
+    if (state === "improvementNeedstriage") h += "selected ";
+    h += 'value="improvementNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'improvementNoisy')
-      h += 'selected ';
-    h += 'value="improvementNoisy">Noisy similar</option>'
+    h += "<option ";
+    if (state === "improvementNoisy") h += "selected ";
+    h += 'value="improvementNoisy">Noisy similar</option>';
 
-    h += '<option ';
-    if (state === 'improvementConfirmed')
-      h += 'selected ';
-    h += 'value="improvementConfirmed">Improvement confirmed</option>'
+    h += "<option ";
+    if (state === "improvementConfirmed") h += "selected ";
+    h += 'value="improvementConfirmed">Improvement confirmed</option>';
   }
 
-  if (state.indexOf('similar') !== -1) {
-    h += '<option ';
-    if (state === 'similarNeedstriage')
-      h += 'selected ';
-    h += 'value="similarNeedstriage">Needs Triage</option>'
+  if (state.indexOf("similar") !== -1) {
+    h += "<option ";
+    if (state === "similarNeedstriage") h += "selected ";
+    h += 'value="similarNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'similarNoisy')
-      h += 'selected ';
-    h += 'value="similarNoisy">Noisy similar</option>'
+    h += "<option ";
+    if (state === "similarNoisy") h += "selected ";
+    h += 'value="similarNoisy">Noisy similar</option>';
 
-    h += '<option ';
-    if (state === 'similarConfirmed')
-      h += 'selected ';
-    h += 'value="similarConfirmed">Similar confirmed</option>'
+    h += "<option ";
+    if (state === "similarConfirmed") h += "selected ";
+    h += 'value="similarConfirmed">Similar confirmed</option>';
   }
-  h += '</select></td>';
+  h += "</select></td>";
 
-  return (h);
+  return h;
 }
 
 function comparesGetStateTdDesc(state, compareId) {
-  let h = '';
+  let h = "";
   h = '<td data-order="' + state + '" data-filter="' + state + '">';
-  h += '<select name="state" onchange="serieChangeStateCompare(this,\'' + compareId + '\');">';
+  h +=
+    '<select name="state" onchange="serieChangeStateCompare(this,\'' +
+    compareId +
+    "');\">";
 
-  if (state.indexOf('lower') !== -1) {
-    h += '<option ';
-    if (state === 'lowerNeedstriage')
-      h += 'selected ';
-    h += 'value="lowerNeedstriage">Needs Triage</option>'
+  if (state.indexOf("lower") !== -1) {
+    h += "<option ";
+    if (state === "lowerNeedstriage") h += "selected ";
+    h += 'value="lowerNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'lowerConfirmed')
-      h += 'selected ';
-    h += 'value="lowerConfirmed">Lower confirmed</option>'
+    h += "<option ";
+    if (state === "lowerConfirmed") h += "selected ";
+    h += 'value="lowerConfirmed">Lower confirmed</option>';
 
     if (!projects[projectId].useBugTracker) {
-      h += '<option ';
-      if (state === 'lowerAssigned')
-        h += 'selected ';
-      h += 'value="lowerAssigned">Assigned</option>'
+      h += "<option ";
+      if (state === "lowerAssigned") h += "selected ";
+      h += 'value="lowerAssigned">Assigned</option>';
 
-      h += '<option ';
-      if (state === 'lowerFixed')
-        h += 'selected ';
-      h += 'value="lowerFixed">Fixed</option>'
+      h += "<option ";
+      if (state === "lowerFixed") h += "selected ";
+      h += 'value="lowerFixed">Fixed</option>';
     }
 
-    h += '<option ';
-    if (state === 'lowerIntended')
-      h += 'selected ';
-    h += 'value="lowerIntended">Intended behavior</option>'
+    h += "<option ";
+    if (state === "lowerIntended") h += "selected ";
+    h += 'value="lowerIntended">Intended behavior</option>';
   }
 
-  if (state.indexOf('better') !== -1) {
-    h += '<option ';
-    if (state === 'betterNeedstriage')
-      h += 'selected ';
-    h += 'value="betterNeedstriage">Needs Triage</option>'
+  if (state.indexOf("better") !== -1) {
+    h += "<option ";
+    if (state === "betterNeedstriage") h += "selected ";
+    h += 'value="betterNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'betterConfirmed')
-      h += 'selected ';
-    h += 'value="betterConfirmed">Better confirmed</option>'
+    h += "<option ";
+    if (state === "betterConfirmed") h += "selected ";
+    h += 'value="betterConfirmed">Better confirmed</option>';
   }
 
-  if (state.indexOf('similar') !== -1) {
-    h += '<option ';
-    if (state === 'similarNeedstriage')
-      h += 'selected ';
-    h += 'value="similarNeedstriage">Needs Triage</option>'
+  if (state.indexOf("similar") !== -1) {
+    h += "<option ";
+    if (state === "similarNeedstriage") h += "selected ";
+    h += 'value="similarNeedstriage">Needs Triage</option>';
 
-    h += '<option ';
-    if (state === 'similarConfirmed')
-      h += 'selected ';
-    h += 'value="similarConfirmed">Similar confirmed</option>'
+    h += "<option ";
+    if (state === "similarConfirmed") h += "selected ";
+    h += 'value="similarConfirmed">Similar confirmed</option>';
   }
-  h += '</select></td>';
+  h += "</select></td>";
 
-  return (h);
+  return h;
 }
 
 function dumpRegressionTable() {
-  var h = ''
+  var h = "";
   if (serie.analyse.benchmark) {
-    h += '<thead>';
-    h += '<tr>';
+    h += "<thead>";
+    h += "<tr>";
     //h += '<th>Regression analysis</th>';
-    h += '<th style="width: 90px">State</th>'
+    h += '<th style="width: 90px">State</th>';
     if (!projects[projectId].useBugTracker) {
-      h += '<th>Assignee</th>';
+      h += "<th>Assignee</th>";
     }
-    h += '<th>Analysis</th>';
-    h += '<th>BuildId</th>';
-    h += '<th>Base</th>';
-    h += '<th>Current</th>';
-    h += '<th>Diff</th>';
-    h += '<th>Ratio</th>';
+    h += "<th>Analysis</th>";
+    h += "<th>BuildId</th>";
+    h += "<th>Base</th>";
+    h += "<th>Current</th>";
+    h += "<th>Diff</th>";
+    h += "<th>Ratio</th>";
     h += '<th style="width: 90px"></th>';
-    h += '</tr>';
-    h += '</thead>';
-    h += '<tbody>';
+    h += "</tr>";
+    h += "</thead>";
+    h += "<tbody>";
     var s = convertAnalyseResult.summary;
-    h += '<tr>';
+    h += "<tr>";
 
     if (s.error) {
-      h += '<td></td>';
+      h += "<td></td>";
       if (!projects[projectId].useBugTracker) {
-        h += '<td></td>';
+        h += "<td></td>";
       }
       h += '<td class="orange"><b>Not available</b></td>';
-      h += '<td><a target="_blank" href="' + builds[s.lastBuildId].infos.url + '"' + builds[s.lastBuildId].infos.hash + '">' + s.lastBuildId + '</a></td>';
-      h += '<td></td>';
-      h += '<td></td>';
-      h += '<td></td>';
-      h += '<td></td>';
+      h +=
+        '<td><a target="_blank" href="' +
+        builds[s.lastBuildId].infos.url +
+        '"' +
+        builds[s.lastBuildId].infos.hash +
+        '">' +
+        s.lastBuildId +
+        "</a></td>";
+      h += "<td></td>";
+      h += "<td></td>";
+      h += "<td></td>";
+      h += "<td></td>";
     } else {
       // convert an existing database
-      if (serie.state.analyse === 'none') {
+      if (serie.state.analyse === "none") {
         if (convertAnalyseResult.summary.status === "improvement")
-          serie.state.analyse = 'improvementNeedstriage';
-        else
-          serie.state.analyse = 'similarNeedstriage';
+          serie.state.analyse = "improvementNeedstriage";
+        else serie.state.analyse = "similarNeedstriage";
       }
-      if (serie.state.analyse === 'assigned') serie.state.analyse = 'regressionAssigned';
-      if (serie.state.analyse === 'new') serie.state.analyse = 'regressionNeedstriage';
-      if (serie.state.analyse === 'wontfix') serie.state.analyse = 'regressionIntended';
+      if (serie.state.analyse === "assigned")
+        serie.state.analyse = "regressionAssigned";
+      if (serie.state.analyse === "new")
+        serie.state.analyse = "regressionNeedstriage";
+      if (serie.state.analyse === "wontfix")
+        serie.state.analyse = "regressionIntended";
 
       h += seriesGetStateTdDesc(serie.state.analyse);
       var ass;
       if (serie.assignee)
-        if (serie.assignee.analyse)
-          ass = serie.assignee.analyse
+        if (serie.assignee.analyse) ass = serie.assignee.analyse;
       if (!projects[projectId].useBugTracker) {
         h += getAssigneeTd(ass);
       }
 
-      if (serie.state.analyse.indexOf('similar') !== -1)
+      if (serie.state.analyse.indexOf("similar") !== -1)
         h += '<td class="green"><b>Similar</b></td>';
-      else if (serie.state.analyse.indexOf('regression') !== -1)
+      else if (serie.state.analyse.indexOf("regression") !== -1)
         h += '<td class="red"><b>Regression</b></td>';
-      else if (serie.state.analyse.indexOf('improvement') !== -1)
+      else if (serie.state.analyse.indexOf("improvement") !== -1)
         h += '<td class="green"><b>Improved</b></td>';
-      h += '<td><a target="_blank" href="' + builds[s.lastBuildId].infos.url + '"' + builds[s.lastBuildId].infos.hash + '">' + s.lastBuildId + '</a></td>';
-      h += '<td>' + s.base.average * 1 + '</td>';
-      h += '<td>' + s.current.average * 1 + '</td>';
-      h += '<td>' + s.current.diff * 1 + '</td>';
-      h += '<td><b>' + s.current.ratio * 1 + '</b></td>';
+      h +=
+        '<td><a target="_blank" href="' +
+        builds[s.lastBuildId].infos.url +
+        '"' +
+        builds[s.lastBuildId].infos.hash +
+        '">' +
+        s.lastBuildId +
+        "</a></td>";
+      h += "<td>" + s.base.average * 1 + "</td>";
+      h += "<td>" + s.current.average * 1 + "</td>";
+      h += "<td>" + s.current.diff * 1 + "</td>";
+      h += "<td><b>" + s.current.ratio * 1 + "</b></td>";
     }
-    h += '<td><center>';
+    h += "<td><center>";
     h += '<div class="btn-group">';
     if (serie.url) {
       if (serie.url[s.lastBuildId])
-        h += '<button type="button" onclick="showOpenSpongelink()" class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" onclick="showOpenSpongelink()" class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
       else
-        h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
     } else
-      h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
-    h += '<button type="button" onclick="addBugLink()" class="btn btn-danger btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+      h +=
+        '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+    h +=
+      '<button type="button" onclick="addBugLink()" class="btn btn-danger btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
     if (serie.bugLink) {
       if (serie.bugLink.series) {
-        h += '<button type="button" onclick="showOpenBugLink()" class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" onclick="showOpenBugLink()" class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
       } else {
-        h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
       }
     } else {
-      h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+      h +=
+        '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
     }
-    h += '</div>';
-    h += '</center></td>';
-    h += '</tr>';
-    h += '</tbody>';
+    h += "</div>";
+    h += "</center></td>";
+    h += "</tr>";
+    h += "</tbody>";
   }
   if (serie.analyse.test) {
     var s = convertAnalyseResult;
 
     // convert an existing database
-    if (s.isPassing)
-      serie.state.analyse = 'passing';
+    if (s.isPassing) serie.state.analyse = "passing";
     else {
-      if (serie.state.analyse === 'assigned')
-        serie.state.analyse = 'failingAssigned';
-      else
-        serie.state.analyse = 'failingNeedstriage';
+      if (serie.state.analyse === "assigned")
+        serie.state.analyse = "failingAssigned";
+      else serie.state.analyse = "failingNeedstriage";
     }
-    h += '<thead>';
-    h += '<tr>';
+    h += "<thead>";
+    h += "<tr>";
     h += '<th style="width: 90px">State</th>';
     if (!projects[projectId].useBugTracker) {
-      h += '<th>Assignee</th>';
+      h += "<th>Assignee</th>";
     }
-    h += '<th >Analysis</th>';
-    h += '<th >Last passing buildId</th>';
-    h += '<th >Failing since buildId</th>';
-    h += '<th >Last executed buildId</th>';
+    h += "<th >Analysis</th>";
+    h += "<th >Last passing buildId</th>";
+    h += "<th >Failing since buildId</th>";
+    h += "<th >Last executed buildId</th>";
     h += '<th style="width: 90px" class="no-sort"></th>';
-    h += '</tr>';
-    h += '</thead>';
-    h += '<tbody>';
-    h += '<tr>';
+    h += "</tr>";
+    h += "</thead>";
+    h += "<tbody>";
+    h += "<tr>";
     //h += '<td>Test</td>';
     h += testsGetStateTdDesc(serie.state.analyse);
     var ass;
     if (serie.assignee)
-      if (serie.assignee.analyse)
-        ass = serie.assignee.analyse
+      if (serie.assignee.analyse) ass = serie.assignee.analyse;
     if (!projects[projectId].useBugTracker) {
       h += getAssigneeTd(ass);
     }
 
-    if (s.isPassing)
-      h += '<td class="green"><b>Passing</b></td>';
-    else
-      h += '<td class="red"><b>Failed</b></td>';
+    if (s.isPassing) h += '<td class="green"><b>Passing</b></td>';
+    else h += '<td class="red"><b>Failed</b></td>';
 
     if (s.lastPassing)
-      h += '<td><a target="_blank" href="' + builds[s.lastPassing].infos.url + '"' + builds[s.lastPassing].infos.hash + '">' + s.lastPassing + '</a></td>';
-    else
-      h += '<td>---</td>';
+      h +=
+        '<td><a target="_blank" href="' +
+        builds[s.lastPassing].infos.url +
+        '"' +
+        builds[s.lastPassing].infos.hash +
+        '">' +
+        s.lastPassing +
+        "</a></td>";
+    else h += "<td>---</td>";
 
-    if (s.isPassing)
-      h += '<td>--</td>';
+    if (s.isPassing) h += "<td>--</td>";
     else
-      h += '<td><a target="_blank" href="' + builds[s.failingSince].infos.url + '"' + builds[s.failingSince].infos.hash + '">' + s.failingSince + '</a></td>';
+      h +=
+        '<td><a target="_blank" href="' +
+        builds[s.failingSince].infos.url +
+        '"' +
+        builds[s.failingSince].infos.hash +
+        '">' +
+        s.failingSince +
+        "</a></td>";
 
-    h += '<td><a target="_blank" href="' + builds[s.lastExecuted].infos.url + '"' + builds[s.lastExecuted].infos.hash + '">' + s.lastExecuted + '</a></td>';
-    h += '<td><center>';
+    h +=
+      '<td><a target="_blank" href="' +
+      builds[s.lastExecuted].infos.url +
+      '"' +
+      builds[s.lastExecuted].infos.hash +
+      '">' +
+      s.lastExecuted +
+      "</a></td>";
+    h += "<td><center>";
     h += '<div class="btn-group">';
     if (serie.url) {
       if (serie.url[serie.lastBuildId])
-        h += '<button type="button" onclick="showOpenSpongelink()" class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" onclick="showOpenSpongelink()" class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
       else
-        h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
     } else
-      h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
-    h += '<button type="button" onclick="addBugLink()" class="btn btn-danger btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+      h +=
+        '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-external-link" aria-hidden="true"></i></button>';
+    h +=
+      '<button type="button" onclick="addBugLink()" class="btn btn-danger btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
     if (serie.bugLink) {
       if (serie.bugLink.series) {
-        h += '<button type="button" onclick="showOpenBugLink()" class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" onclick="showOpenBugLink()" class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
       } else {
-        h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
       }
     } else {
-      h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+      h +=
+        '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
     }
-    h += '</div>';
-    h += '</center></td>';
-    h += '</tr>';
-    h += '</tbody>';
+    h += "</div>";
+    h += "</center></td>";
+    h += "</tr>";
+    h += "</tbody>";
   }
 
-  $('#table_uilibone_regression').html(h);
+  $("#table_uilibone_regression").html(h);
 }
 
 function showOpenSpongelink() {
-  if (debug) console.log('showOpenSpongelink')
+  if (debug) console.log("showOpenSpongelink");
   window.open(serie.url[serie.lastBuildId], "_blank");
 }
 
 function showOpenSpongelinkBuild(buildId) {
-  console.log('showOpenSpongelinkBuild', buildId, serie.url[buildId]);
+  console.log("showOpenSpongelinkBuild", buildId, serie.url[buildId]);
   window.open(serie.url[buildId], "_blank");
 }
 
 function dumpComparesTable() {
-  var h = '';
+  var h = "";
   if (serie.compares === undefined) return;
 
-  h += '<thead>';
-  h += '<tr>';
-  h += '<th >Comparator</th>';
+  h += "<thead>";
+  h += "<tr>";
+  h += "<th >Comparator</th>";
   h += '<th style="width: 90px">State</th>';
   if (!projects[projectId].useBugTracker) {
-    h += '<th >Assignee</th>';
+    h += "<th >Assignee</th>";
   }
-  h += '<th >Analysis</th>';
-  h += '<th >My value</th>';
-  h += '<th >Compare value</th>';
-  h += '<th >Diff</th>';
-  h += '<th >Ratio</th>';
+  h += "<th >Analysis</th>";
+  h += "<th >My value</th>";
+  h += "<th >Compare value</th>";
+  h += "<th >Diff</th>";
+  h += "<th >Ratio</th>";
   h += '<th style="width: 90px"></th>';
-  h += '</tr>';
-  h += '</thead><tbody>';
+  h += "</tr>";
+  h += "</thead><tbody>";
 
   var k = Object.keys(serie.compares);
   for (var ii = 0; ii < k.length; ii++) {
@@ -1427,102 +1519,126 @@ function dumpComparesTable() {
     let stateCompare = serie.state.compares[k[ii]];
 
     // convert an existing database
-    if (stateCompare === 'none') {
+    if (stateCompare === "none") {
       if (serie.compares[k[ii]].result.status === "improvement")
-        stateCompare = 'improvementNeedstriage';
-      else
-        stateCompare = 'similarNeedstriage';
+        stateCompare = "improvementNeedstriage";
+      else stateCompare = "similarNeedstriage";
     }
-    if (stateCompare === 'assigned') stateCompare = 'lowerAssigned';
-    if (stateCompare === 'new') stateCompare = 'lowerNeedstriage';
-    if (stateCompare === 'wontfix') stateCompare = 'lowerIntended';
+    if (stateCompare === "assigned") stateCompare = "lowerAssigned";
+    if (stateCompare === "new") stateCompare = "lowerNeedstriage";
+    if (stateCompare === "wontfix") stateCompare = "lowerIntended";
     serie.state.compares[k[ii]] = stateCompare;
 
-    h += '<tr>';
-    h += '<td>' + sc.description + '</td>';
+    h += "<tr>";
+    h += "<td>" + sc.description + "</td>";
 
     h += comparesGetStateTdDesc(stateCompare, k[ii]);
     var ass;
     if (serie.assignee)
       if (serie.assignee.compares)
         if (serie.assignee.compares[k[ii]])
-          ass = serie.assignee.compares[k[ii]]
+          ass = serie.assignee.compares[k[ii]];
     if (!projects[projectId].useBugTracker) {
       h += getAssigneeTd(ass, k[ii]);
     }
-    if (stateCompare.indexOf('better') !== -1)
-      h += '<td class="green"><b>Better</b></td>'
-    if (stateCompare.indexOf('similar') !== -1)
-      h += '<td class="green"><b>Similar</b></td>'
-    if (stateCompare.indexOf('lower') !== -1)
-      h += '<td class="red"><b>Lower</b></td>'
-    h += '<td>' + sc.result.myValue + '</td>';
-    h += '<td>' + sc.result.compareValue + '</td>';
-    var p = sc.result.diff / sc.result.compareValue * 100;
+    if (stateCompare.indexOf("better") !== -1)
+      h += '<td class="green"><b>Better</b></td>';
+    if (stateCompare.indexOf("similar") !== -1)
+      h += '<td class="green"><b>Similar</b></td>';
+    if (stateCompare.indexOf("lower") !== -1)
+      h += '<td class="red"><b>Lower</b></td>';
+    h += "<td>" + sc.result.myValue + "</td>";
+    h += "<td>" + sc.result.compareValue + "</td>";
+    var p = (sc.result.diff / sc.result.compareValue) * 100;
     if (sc.result.diff > 0) {
-      h += '<td>+' + sc.result.diff.toFixed(2) + '</td>';
-      h += '<td><b>+' + p.toFixed(2) + '%</b></td>';
+      h += "<td>+" + sc.result.diff.toFixed(2) + "</td>";
+      h += "<td><b>+" + p.toFixed(2) + "%</b></td>";
     } else {
-      h += '<td>' + sc.result.diff.toFixed(2) + '</td>';
-      h += '<td><b>' + p.toFixed(2) + '%</b></td>';
+      h += "<td>" + sc.result.diff.toFixed(2) + "</td>";
+      h += "<td><b>" + p.toFixed(2) + "%</b></td>";
     }
-    h += '<td><center>';
+    h += "<td><center>";
     h += '<div class="btn-group">';
 
-    h += '<button type="button" onclick="openEditCompareSerie(\'' + k[ii] + '\')" class="btn btn-danger btn-xs"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
+    h +=
+      '<button type="button" onclick="openEditCompareSerie(\'' +
+      k[ii] +
+      '\')" class="btn btn-danger btn-xs"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
 
-    h += '<button type="button" onclick="addBugLinkCompare(\'' + k[ii] + '\')" class="btn btn-danger btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+    h +=
+      '<button type="button" onclick="addBugLinkCompare(\'' +
+      k[ii] +
+      '\')" class="btn btn-danger btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
     if (serie.bugLink) {
       if (serie.bugLink.compares[k[ii]]) {
-        h += '<button type="button" onclick="showOpenBugLink(\'' + k[ii] + '\')" class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" onclick="showOpenBugLink(\'' +
+          k[ii] +
+          '\')" class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
       } else {
-        h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+        h +=
+          '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
       }
     } else {
-      h += '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
+      h +=
+        '<button type="button" disabled class="btn btn-primary btn-xs"><i class="fa fa-bug" aria-hidden="true"></i></button>';
     }
 
-    h += '</div>';
-    h += '</center></td>';
-    h += '</tr>';
+    h += "</div>";
+    h += "</center></td>";
+    h += "</tr>";
   }
-  h += '</tbody>';
-  $('#table_uilibone_compares').html(h);
-  $('#compares').show();
+  h += "</tbody>";
+  $("#table_uilibone_compares").html(h);
+  $("#compares").show();
 }
 
 function openEditCompareSerie(compareId) {
-  window.open('/serie?' + compares[compareId].compareWith.projectId + '?' + encodeURIComponent(serieId));
+  window.open(
+    "/serie?" +
+      compares[compareId].compareWith.projectId +
+      "?" +
+      encodeURIComponent(serieId)
+  );
 }
 
 function showOpenBugLink(compareId) {
-  if (compareId)
-    window.open(serie.bugLink.compares[compareId], "_blank");
-  else
-    window.open(serie.bugLink.series, "_blank");
+  if (compareId) window.open(serie.bugLink.compares[compareId], "_blank");
+  else window.open(serie.bugLink.series, "_blank");
 }
 
 function legendFormatter(data) {
-  return '';
+  return "";
 }
 
 function globalShowBuildInfo(idx) {
   var b = builds[serieBuilds[idx]];
-  var i = b.buildId + ' - ' + b.infos.abbrevHash + ' - ' + b.infos.authorName + ' - ' + b.infos.subject;
+  var i =
+    b.buildId +
+    " - " +
+    b.infos.abbrevHash +
+    " - " +
+    b.infos.authorName +
+    " - " +
+    b.infos.subject;
   i = i.substring(0, 90);
-  document.getElementById('buildInfo').innerHTML = '<a href="' + b.infos.url + '"><b style="color:grey;">' + i + '</b > </a>';
+  document.getElementById("buildInfo").innerHTML =
+    '<a href="' + b.infos.url + '"><b style="color:grey;">' + i + "</b > </a>";
 }
 
 function globalSetSelectionRegression(idx) {
-  var h = '';
-  var e = document.getElementById('valueinfo');
+  var h = "";
+  var e = document.getElementById("valueinfo");
   eltg.setSelection(idx);
   if (convertAnalyseResult.summary.error) {
-    h = 'Analysis not available';
+    h = "Analysis not available";
   } else {
     var idxAvg;
     for (var ii = 0; ii < convertAnalyseResult.averages.length; ii++) {
-      if ((convertAnalyseResult.averages[ii].start <= idx) && (idx <= convertAnalyseResult.averages[ii].end)) {
+      if (
+        convertAnalyseResult.averages[ii].start <= idx &&
+        idx <= convertAnalyseResult.averages[ii].end
+      ) {
         idxAvg = ii;
         break;
       }
@@ -1530,7 +1646,7 @@ function globalSetSelectionRegression(idx) {
     if (debug) console.log(idxAvg);
 
     if (idxAvg === undefined) {
-      e.innerHTML = 'Analysis not available';
+      e.innerHTML = "Analysis not available";
       globalShowBuildInfo(idx);
       return;
     }
@@ -1538,71 +1654,62 @@ function globalSetSelectionRegression(idx) {
     var v = convertAnalyseResult.averages[idxAvg].average;
     var status = convertAnalyseResult.averages[idxAvg].status;
 
-    if (idxAvg === undefined) alert('idxAvg NOT FOUND');
-    var previousV = convertAnalyseResult.averages[convertAnalyseResult.details.first].average;
+    if (idxAvg === undefined) alert("idxAvg NOT FOUND");
+    var previousV =
+      convertAnalyseResult.averages[convertAnalyseResult.details.first].average;
 
     //h +='<center>';
-    h += 'Base average = <b>' + previousV + '</b> ';
-    h += 'Current average = <b>'
+    h += "Base average = <b>" + previousV + "</b> ";
+    h += "Current average = <b>";
 
-    if (v === null)
-      h += '--- ---';
+    if (v === null) h += "--- ---";
     else {
-      if (previousV === null)
-        h += v + ' ---';
+      if (previousV === null) h += v + " ---";
       else {
-        var diff = (v - previousV);
-        var p = diff / previousV * 100;
+        var diff = v - previousV;
+        var p = (diff / previousV) * 100;
         if (diff === 0) {
           h += "<span style='color:green'>";
           h += v;
           h += "</span>";
         } else {
-          if (status === 'regression')
-            h += "<span style='color:red'>";
-          else
-            h += "<span style='color:green'>";
+          if (status === "regression") h += "<span style='color:red'>";
+          else h += "<span style='color:green'>";
 
           if (p > 0) {
-            h += v + ' (+' + diff.toFixed(2) + ' +' + p.toFixed(2) + '%)';
+            h += v + " (+" + diff.toFixed(2) + " +" + p.toFixed(2) + "%)";
             h += "</span>";
           } else {
-            h += v + ' (' + diff.toFixed(2) + ' ' + p.toFixed(2) + '%)';
+            h += v + " (" + diff.toFixed(2) + " " + p.toFixed(2) + "%)";
             h += "</span>";
           }
         }
       }
     }
-    h += '</b><br>';
+    h += "</b><br>";
 
     var v = serieData[idx];
-    h += 'Value = <b>';
+    h += "Value = <b>";
     h += v;
-    h += '</b> ';
-    h += 'Diff current average = <b>';
+    h += "</b> ";
+    h += "Diff current average = <b>";
     var ca = convertAnalyseResult.averages[idxAvg].average;
-    var diff = (v - ca);
-    var p = diff / ca * 100;
-    if (diff === 0)
-      h += '(0)';
-    if (diff > 0)
-      h += '(+' + diff.toFixed(2) + ' +' + p.toFixed(2) + '%)';
-    if (diff < 0)
-      h += '(' + diff.toFixed(2) + ' ' + p.toFixed(2) + '%)';
-    h += '</b> ';
+    var diff = v - ca;
+    var p = (diff / ca) * 100;
+    if (diff === 0) h += "(0)";
+    if (diff > 0) h += "(+" + diff.toFixed(2) + " +" + p.toFixed(2) + "%)";
+    if (diff < 0) h += "(" + diff.toFixed(2) + " " + p.toFixed(2) + "%)";
+    h += "</b> ";
 
-    if ((idxAvg - 1) > 0) {
-      h += 'Diff previous average = <b>';
+    if (idxAvg - 1 > 0) {
+      h += "Diff previous average = <b>";
       var ca = convertAnalyseResult.averages[idxAvg - 1].average;
-      var diff = (v - ca);
-      var p = diff / ca * 100;
-      if (diff === 0)
-        h += '(0)';
-      if (diff > 0)
-        h += '(+' + diff.toFixed(2) + ' +' + p.toFixed(2) + '%)';
-      if (diff < 0)
-        h += '(' + diff.toFixed(2) + ' ' + p.toFixed(2) + '%)';
-      h += '</b> ';
+      var diff = v - ca;
+      var p = (diff / ca) * 100;
+      if (diff === 0) h += "(0)";
+      if (diff > 0) h += "(+" + diff.toFixed(2) + " +" + p.toFixed(2) + "%)";
+      if (diff < 0) h += "(" + diff.toFixed(2) + " " + p.toFixed(2) + "%)";
+      h += "</b> ";
     }
     //h += '</center>';
   }
@@ -1611,65 +1718,73 @@ function globalSetSelectionRegression(idx) {
 }
 
 function uiShowSerieClean() {
-  document.getElementById('buildInfo').innerHTML = "";
-  document.getElementById('valueinfo').innerHTML = "";
-  document.getElementById('elt_dygraph').innerHTML = "";
+  document.getElementById("buildInfo").innerHTML = "";
+  document.getElementById("valueinfo").innerHTML = "";
+  document.getElementById("elt_dygraph").innerHTML = "";
 }
 
 function unselectAnalysePanel() {
   var a = serie.analyse;
 
   if (a.base !== undefined) {
-    $('#analyseBase' + a.base).prop("selected", false)
+    $("#analyseBase" + a.base).prop("selected", false);
   }
 
   if (a.benchmark !== undefined) {
-    $('#analyseTypeBenchmark').prop("selected", false)
+    $("#analyseTypeBenchmark").prop("selected", false);
     if (a.benchmark.trend !== undefined) {
-      if (a.benchmark.trend === 'higher') {
-        $('#analyseBenchmarkTrendHigher').prop("selected", false)
+      if (a.benchmark.trend === "higher") {
+        $("#analyseBenchmarkTrendHigher").prop("selected", false);
       } else {
-        $('#analyseBenchmarkTrendSmaller').prop("selected", false)
+        $("#analyseBenchmarkTrendSmaller").prop("selected", false);
       }
-    } else $('#analyseBenchmarkTrendSmaller').prop("selected", false)
+    } else $("#analyseBenchmarkTrendSmaller").prop("selected", false);
   }
 
   if (a.test !== undefined) {
-    $('#analyseTypeTest').prop("selected", false)
+    $("#analyseTypeTest").prop("selected", false);
     if (a.test.propagate !== undefined) {
       if (a.test.propagate === true)
-        $('#analyseTestPropagateTrue').prop("selected", false)
-      else
-        $('#analyseTestPropagateFalse').prop("selected", false)
-    } else $('#analyseTestPropagateFalse').prop("selected", false)
+        $("#analyseTestPropagateTrue").prop("selected", false);
+      else $("#analyseTestPropagateFalse").prop("selected", false);
+    } else $("#analyseTestPropagateFalse").prop("selected", false);
   }
 }
 
 function initAnalysePanel() {
-
-  $(document).ready(function() {
+  $(document).ready(function () {
     $("#analyseBase").select2({
       placeholder: "Base is first buildId",
-      allowClear: true
+      allowClear: true,
     });
     $("#stateAssignee").select2({
       placeholder: "Enter username",
-      allowClear: true
+      allowClear: true,
     });
     for (var ii = 0; ii < serieBuilds.length; ii++) {
-      $('#analyseBase').append($('<option>', {
-        value: serieBuilds[ii],
-        text: 'Use build ' + serieBuilds[ii] + ' - ' + builds[serieBuilds[ii]].infos.authorName + ' - ' + builds[serieBuilds[ii]].infos.subject,
-        id: 'analyseBase' + serieBuilds[ii]
-      }));
+      $("#analyseBase").append(
+        $("<option>", {
+          value: serieBuilds[ii],
+          text:
+            "Use build " +
+            serieBuilds[ii] +
+            " - " +
+            builds[serieBuilds[ii]].infos.authorName +
+            " - " +
+            builds[serieBuilds[ii]].infos.subject,
+          id: "analyseBase" + serieBuilds[ii],
+        })
+      );
     }
-    var k = projects[projectId].users.split(',');
+    var k = projects[projectId].users.split(",");
     for (var ii = 0; ii < k.length; ii++) {
-      $('#stateAssignee').append($('<option>', {
-        value: k[ii],
-        text: k[ii],
-        id: 'stateAssignee' + k[ii]
-      }));
+      $("#stateAssignee").append(
+        $("<option>", {
+          value: k[ii],
+          text: k[ii],
+          id: "stateAssignee" + k[ii],
+        })
+      );
     }
   });
 }
@@ -1677,121 +1792,118 @@ function initAnalysePanel() {
 function setAnalysePanel() {
   var a = serie.analyse;
   if (a.base !== undefined) {
-    $('#analyseBase' + a.base).prop("selected", true);
-    $('#analyseBase').val(a.base).trigger("change")
+    $("#analyseBase" + a.base).prop("selected", true);
+    $("#analyseBase").val(a.base).trigger("change");
   }
 
   if (a.benchmark !== undefined) {
-    $('#analyseBenchmarkForm').show();
-    $('#analyseTypeBenchmark').prop("selected", true)
+    $("#analyseBenchmarkForm").show();
+    $("#analyseTypeBenchmark").prop("selected", true);
     if (a.benchmark.range !== undefined) {
-      if (a.benchmark.range.toString().endsWith('%')) {
+      if (a.benchmark.range.toString().endsWith("%")) {
         convertedRange = a.benchmark.range;
       } else {
         convertedRange = `${a.benchmark.range}${serie.serieUnit}`;
       }
-      $('#analyseBenchmarkRange').val(convertedRange);
+      $("#analyseBenchmarkRange").val(convertedRange);
     }
     if (a.benchmark.trend !== undefined) {
-      if (a.benchmark.trend === 'higher') {
-        $('#analyseBenchmarkTrendHigher').prop("selected", true)
+      if (a.benchmark.trend === "higher") {
+        $("#analyseBenchmarkTrendHigher").prop("selected", true);
       } else {
-        $('#analyseBenchmarkTrendSmaller').prop("selected", true)
+        $("#analyseBenchmarkTrendSmaller").prop("selected", true);
       }
-    } else $('#analyseBenchmarkTrendSmaller').prop("selected", true)
+    } else $("#analyseBenchmarkTrendSmaller").prop("selected", true);
 
     if (a.benchmark.required !== undefined) {
-      $('#analyseBenchmarkRequired').val(a.benchmark.required);
+      $("#analyseBenchmarkRequired").val(a.benchmark.required);
     }
   }
   if (a.test !== undefined) {
-    $('#analyseTestForm').show();
+    $("#analyseTestForm").show();
     if (a.test.propagate !== undefined) {
       if (a.test.propagate === true)
-        $('#analyseTestPropagateTrue').prop("selected", true)
-      else
-        $('#analyseTestPropagateFalse').prop("selected", true)
-    } else $('#analyseTestPropagateFalse').prop("selected", true)
+        $("#analyseTestPropagateTrue").prop("selected", true);
+      else $("#analyseTestPropagateFalse").prop("selected", true);
+    } else $("#analyseTestPropagateFalse").prop("selected", true);
   }
 }
 
 function addNewComment() {
   var comment = {};
-  comment.text = $('#commentText').val();
+  comment.text = $("#commentText").val();
   if (comment.text === "") {
-    alert('Need a Text to add comment');
+    alert("Need a Text to add comment");
     return;
   }
-  socket.emit('serieAddComment', {
+  socket.emit("serieAddComment", {
     projectId: projectId,
     serieId: serieId,
-    comment: comment
+    comment: comment,
   });
-  $('#commentText').val('');
+  $("#commentText").val("");
   clearSelect2s();
-
 }
 
 function applyAnalyse() {
-  if (debug) console.log('applyAnalyse');
-  console.log('applyAnalyse');
+  if (debug) console.log("applyAnalyse");
+  console.log("applyAnalyse");
   // extract analyse from form
   var newAnalyse = {};
-  if ($('#analyseBase').val() !== '')
-    newAnalyse.base = $('#analyseBase').val() * 1;
+  if ($("#analyseBase").val() !== "")
+    newAnalyse.base = $("#analyseBase").val() * 1;
 
   if (serie.analyse.benchmark) {
     newAnalyse.benchmark = {};
-    if ($('#analyseBenchmarkRange').val() !== '') {
-      let range = $('#analyseBenchmarkRange').val();
-      if (!range.endsWith('%')) {
+    if ($("#analyseBenchmarkRange").val() !== "") {
+      let range = $("#analyseBenchmarkRange").val();
+      if (!range.endsWith("%")) {
         if (!range.endsWith(serie.serieUnit)) {
-          alert(`Unit must be '%' or '${serie.serieUnit}'`)
+          alert(`Unit must be '%' or '${serie.serieUnit}'`);
           return;
         }
         // We don't store the unit internally.
         range = parseInt(range);
       }
-      newAnalyse.benchmark.range = range
+      newAnalyse.benchmark.range = range;
     }
-    if ($('#analyseBenchmarkTrend').val() === 'smaller')
-      newAnalyse.benchmark.trend = 'smaller'
-    else
-      newAnalyse.benchmark.trend = 'higher'
-    if ($('#analyseBenchmarkRequired').val() !== '')
-      newAnalyse.benchmark.required = $('#analyseBenchmarkRequired').val() * 1;
+    if ($("#analyseBenchmarkTrend").val() === "smaller")
+      newAnalyse.benchmark.trend = "smaller";
+    else newAnalyse.benchmark.trend = "higher";
+    if ($("#analyseBenchmarkRequired").val() !== "")
+      newAnalyse.benchmark.required = $("#analyseBenchmarkRequired").val() * 1;
   }
   if (serie.analyse.test) {
     newAnalyse.test = {};
-    if ($('#analyseTestPropagate').val() === 'true')
+    if ($("#analyseTestPropagate").val() === "true")
       newAnalyse.test.propagate = true;
   }
 
-  if (debug) console.log(newAnalyse)
+  if (debug) console.log(newAnalyse);
   serie.analyse = newAnalyse;
   updateAnalyse();
   showHeader();
   drawAnalyseGraph();
 
-  $('#analyseText').val("");
-  $('#analyseChanged').show();
+  $("#analyseText").val("");
+  $("#analyseChanged").show();
 }
 
 function clearSelect2s() {
-  $('#stateAssignee').val('').trigger("change")
+  $("#stateAssignee").val("").trigger("change");
 }
 
 function saveCurrentAnalyse() {
-  if (debug) console.log('saveCurrentAnalyse');
+  if (debug) console.log("saveCurrentAnalyse");
   var comment = {};
-  comment.text = $('#analyseText').val();
-  socket.emit('serieUpdateAnalyse', {
+  comment.text = $("#analyseText").val();
+  socket.emit("serieUpdateAnalyse", {
     projectId: projectId,
     serieId: serieId,
     analyse: serie.analyse,
-    comment: comment
+    comment: comment,
   });
-  $('#analyseChanged').hide();
+  $("#analyseChanged").hide();
   clearSelect2s();
 }
 
@@ -1800,49 +1912,46 @@ function openSetAssigneeModal(target) {
   var state;
   var assignee;
   if (target) {
-    $('#modal-target').html(compares[target].description);
+    $("#modal-target").html(compares[target].description);
     state = serie.state.compares[target];
     if (serie.assignee !== undefined)
       if (serie.assignee.compares !== undefined)
         assignee = serie.assignee.compares[target];
   } else {
-    $('#modal-target').html('regression analysis');
+    $("#modal-target").html("regression analysis");
     state = serie.state.analyse;
-    if (serie.assignee !== undefined)
-      assignee = serie.assignee.analyse
+    if (serie.assignee !== undefined) assignee = serie.assignee.analyse;
   }
 
-  $('#stateText').val("");
-  if (assignee === undefined)
-    $('#stateAssignee').val('').trigger("change")
-  else
-    $('#stateAssignee').val(assignee).trigger("change")
+  $("#stateText").val("");
+  if (assignee === undefined) $("#stateAssignee").val("").trigger("change");
+  else $("#stateAssignee").val(assignee).trigger("change");
   // clear changeState
-  $('#modalChangeState').modal();
+  $("#modalChangeState").modal();
 }
 
 function modalSaveAssignee() {
-  if (debug) console.log('modalSaveAssignee');
+  if (debug) console.log("modalSaveAssignee");
 
-  var assignee = $('#stateAssignee').val();
-  if (assignee === '') assignee = undefined;
+  var assignee = $("#stateAssignee").val();
+  if (assignee === "") assignee = undefined;
 
   var comment = {};
-  comment.text = $('#stateText').val();
+  comment.text = $("#stateText").val();
 
-  socket.emit('serieUpdateAssignee', {
+  socket.emit("serieUpdateAssignee", {
     projectId: projectId,
     serieId: serieId,
     assignee: assignee,
     stateTarget: stateTarget,
-    comment: comment
+    comment: comment,
   });
-  $('#modalChangeState').modal('hide');
+  $("#modalChangeState").modal("hide");
   clearSelect2s();
 }
 
 function changeSerieUnit() {
-  let unit = $('#serieUnit').val();
+  let unit = $("#serieUnit").val();
   if (unit === null) {
     return;
   }
@@ -1854,204 +1963,233 @@ function changeSerieUnit() {
 
 function addBugLink() {
   modalBugLinkCompareId = undefined;
-  if (serie.analyse.benchmark)
-    addBugLinkBenchmark();
-  else
-    addBugLinkTest();
-  $('#myModalAddBugLink').modal();
+  if (serie.analyse.benchmark) addBugLinkBenchmark();
+  else addBugLinkTest();
+  $("#myModalAddBugLink").modal();
 }
 
 function addBugLinkTest() {
   var s = convertAnalyseResult;
-  $('#AddBugLink_Link').val('');
+  $("#AddBugLink_Link").val("");
   if (serie.bugLink) {
     if (serie.bugLink.series) {
-      $('#AddBugLink_Link').val(serie.bugLink.series);
+      $("#AddBugLink_Link").val(serie.bugLink.series);
     }
   }
-  var report = '';
+  var report = "";
   if (s.isPassing) {
-    report += 'Test passing';
-    $('#proposalSubjectForBugReport').val(report);
-    $('#proposalForBugReport').val('');
+    report += "Test passing";
+    $("#proposalSubjectForBugReport").val(report);
+    $("#proposalForBugReport").val("");
     return;
   }
-  report += 'Test failing';
-  $('#proposalSubjectForBugReport').val(report);
-  report = '';
-  report += 'Test: ' + serieId;
-  report += '\r\n\r\n';
+  report += "Test failing";
+  $("#proposalSubjectForBugReport").val(report);
+  report = "";
+  report += "Test: " + serieId;
+  report += "\r\n\r\n";
   if (serie.description)
-    report += 'Description: ' + serie.description + '\r\n\r\n';
-  report += 'Regression analysis details:';
-  report += '\r\n';
-  report += '- last passing buildId: ' + s.lastPassing;
-  report += '\r\n';
-  report += '- test failing since buildId: ' + s.failingSince;
-  report += '\r\n';
-  report += '- last executed buildId: : ' + s.lastExecuted;
-  report += '\r\n\r\n';
-  report += 'Links:';
-  report += '\r\n';
-  report += '- test: ' + danaUrl + '/serie?' + projectId + '?' + encodeURIComponent(serieId);
-  report += '\r\n';
-  report += '- project tests status: ' + danaUrl + '/' + projectId + '/statusTests';
-  report += '\r\n';
-  report += '- dana instance: ' + danaUrl;
-  $('#proposalForBugReport').val(report);
+    report += "Description: " + serie.description + "\r\n\r\n";
+  report += "Regression analysis details:";
+  report += "\r\n";
+  report += "- last passing buildId: " + s.lastPassing;
+  report += "\r\n";
+  report += "- test failing since buildId: " + s.failingSince;
+  report += "\r\n";
+  report += "- last executed buildId: : " + s.lastExecuted;
+  report += "\r\n\r\n";
+  report += "Links:";
+  report += "\r\n";
+  report +=
+    "- test: " +
+    danaUrl +
+    "/serie?" +
+    projectId +
+    "?" +
+    encodeURIComponent(serieId);
+  report += "\r\n";
+  report +=
+    "- project tests status: " + danaUrl + "/" + projectId + "/statusTests";
+  report += "\r\n";
+  report += "- dana instance: " + danaUrl;
+  $("#proposalForBugReport").val(report);
 }
 
 function addBugLinkBenchmark() {
-  $('#AddBugLink_Link').val('');
+  $("#AddBugLink_Link").val("");
   if (serie.bugLink) {
     if (serie.bugLink.series) {
-      $('#AddBugLink_Link').val(serie.bugLink.series);
+      $("#AddBugLink_Link").val(serie.bugLink.series);
     }
   }
-  var report = '';
+  var report = "";
   var s = convertAnalyseResult.summary;
   if (s.error) {
-    report += 'Regression status: undefined';
+    report += "Regression status: undefined";
   } else {
-    if (serie.state.analyse.indexOf('similar') !== -1)
-      report += 'Regression status: similar';
-    else if (serie.state.analyse.indexOf('regression') !== -1)
-      report += 'Regression status: regression';
-    else if (serie.state.analyse.indexOf('improvement') !== -1)
-      report += 'Regression status: improvement';
-    else
-      report += 'Regression status: undefined';
+    if (serie.state.analyse.indexOf("similar") !== -1)
+      report += "Regression status: similar";
+    else if (serie.state.analyse.indexOf("regression") !== -1)
+      report += "Regression status: regression";
+    else if (serie.state.analyse.indexOf("improvement") !== -1)
+      report += "Regression status: improvement";
+    else report += "Regression status: undefined";
   }
-  report += ' ';
-  if (s.current.ratio > 0)
-    report += '+';
-  report += s.current.ratio + '% confirmed';
-  $('#proposalSubjectForBugReport').val(report);
-  report = '';
-  report += 'Benchmark: ' + serieId;
-  report += '\r\n\r\n';
+  report += " ";
+  if (s.current.ratio > 0) report += "+";
+  report += s.current.ratio + "% confirmed";
+  $("#proposalSubjectForBugReport").val(report);
+  report = "";
+  report += "Benchmark: " + serieId;
+  report += "\r\n\r\n";
   if (serie.description)
-    report += 'Description: ' + serie.description + '\r\n\r\n';
-  report += 'Regression analysis details:';
-  report += '\r\n';
+    report += "Description: " + serie.description + "\r\n\r\n";
+  report += "Regression analysis details:";
+  report += "\r\n";
   if (s.error) {
-    report += '- status: undefined';
+    report += "- status: undefined";
   } else {
-    if (serie.state.analyse.indexOf('similar') !== -1)
-      report += '- status: similar';
-    else if (serie.state.analyse.indexOf('regression') !== -1)
-      report += '- status: regression';
-    else if (serie.state.analyse.indexOf('improvement') !== -1)
-      report += '- status: improvement';
-    else
-      report += '- status: undefined';
+    if (serie.state.analyse.indexOf("similar") !== -1)
+      report += "- status: similar";
+    else if (serie.state.analyse.indexOf("regression") !== -1)
+      report += "- status: regression";
+    else if (serie.state.analyse.indexOf("improvement") !== -1)
+      report += "- status: improvement";
+    else report += "- status: undefined";
   }
-  report += '\r\n';
-  report += '- last buildId run: ' + s.lastBuildId;
-  report += '\r\n';
-  report += '- computed base average for analysis computation: ' + s.base.average;
-  report += '\r\n';
-  report += '- last computed average: : ' + s.current.average;
-  report += '\r\n';
-  report += '- current difference with base: ';
-  if (s.current.diff > 0)
-    report += '+';
+  report += "\r\n";
+  report += "- last buildId run: " + s.lastBuildId;
+  report += "\r\n";
+  report +=
+    "- computed base average for analysis computation: " + s.base.average;
+  report += "\r\n";
+  report += "- last computed average: : " + s.current.average;
+  report += "\r\n";
+  report += "- current difference with base: ";
+  if (s.current.diff > 0) report += "+";
   report += s.current.diff;
-  report += '\r\n';
-  report += '- current ratio with base: ';
-  if (s.current.ratio > 0)
-    report += '+';
-  report += s.current.ratio + '%';
-  report += '\r\n\r\n';
-  report += 'Links:';
-  report += '\r\n';
-  report += '- benchmark: ' + danaUrl + '/serie?' + projectId + '?' + encodeURIComponent(serieId);
-  report += '\r\n';
-  report += '- project benchmark status: ' + danaUrl + '/' + projectId + '/statusSeries';
-  report += '\r\n';
-  report += '- dana instance: ' + danaUrl;
-  $('#proposalForBugReport').val(report);
+  report += "\r\n";
+  report += "- current ratio with base: ";
+  if (s.current.ratio > 0) report += "+";
+  report += s.current.ratio + "%";
+  report += "\r\n\r\n";
+  report += "Links:";
+  report += "\r\n";
+  report +=
+    "- benchmark: " +
+    danaUrl +
+    "/serie?" +
+    projectId +
+    "?" +
+    encodeURIComponent(serieId);
+  report += "\r\n";
+  report +=
+    "- project benchmark status: " +
+    danaUrl +
+    "/" +
+    projectId +
+    "/statusSeries";
+  report += "\r\n";
+  report += "- dana instance: " + danaUrl;
+  $("#proposalForBugReport").val(report);
 }
 
 function addBugLinkCompare(compareId) {
   modalBugLinkCompareId = compareId;
   var c = serie.compares[compareId];
-  var p = c.result.diff / c.result.compareValue * 100;
+  var p = (c.result.diff / c.result.compareValue) * 100;
 
   if (serie.bugLink)
     if (serie.bugLink.compares[compareId]) {
-      $('#AddBugLink_Link').val(serie.bugLink.compares[compareId]);
-    } else $('#AddBugLink_Link').val('');
-  var report = '';
-  if (serie.state.compares[compareId].indexOf('similar') !== -1)
-    report += 'Compare status: similar';
-  else if (serie.state.compares[compareId].indexOf('lower') !== -1)
-    report += 'Compare status: lower';
-  else if (serie.state.compares[compareId].indexOf('better') !== -1)
-    report += 'Compare status: better';
-  report += ' ';
+      $("#AddBugLink_Link").val(serie.bugLink.compares[compareId]);
+    } else $("#AddBugLink_Link").val("");
+  var report = "";
+  if (serie.state.compares[compareId].indexOf("similar") !== -1)
+    report += "Compare status: similar";
+  else if (serie.state.compares[compareId].indexOf("lower") !== -1)
+    report += "Compare status: lower";
+  else if (serie.state.compares[compareId].indexOf("better") !== -1)
+    report += "Compare status: better";
+  report += " ";
   if (c.result.diff == 0) {
-    report += '0%';
+    report += "0%";
   } else {
-    if (c.result.diff > 0)
-      report += '+';
-    report += p.toFixed(2) + '%';
+    if (c.result.diff > 0) report += "+";
+    report += p.toFixed(2) + "%";
   }
-  report += ' confirmed';
-  $('#proposalSubjectForBugReport').val(report);
-  report = '';
-  report += 'Benchmark: ' + serieId;
-  report += '\r\n\r\n';
-  report += 'Compare: ' + compareId;
-  report += '\r\n';
-  if (c.description)
-    report += 'Description: ' + c.description + '\r\n\r\n';
-  report += 'Compare analysis details:';
-  report += '\r\n';
-  if (serie.state.compares[compareId].indexOf('similar') !== -1)
-    report += '- status: similar';
-  else if (serie.state.compares[compareId].indexOf('lower') !== -1)
-    report += '- status: lower';
-  else if (serie.state.compares[compareId].indexOf('better') !== -1)
-    report += '- status: better';
-  report += '\r\n';
-  report += '- my value: ' + c.result.myValue;
-  report += '\r\n';
-  report += '- compare value: ' + c.result.compareValue;
-  report += '\r\n';
-  report += '- raw difference: ';
-  if (c.result.diff > 0)
-    report += '+';
+  report += " confirmed";
+  $("#proposalSubjectForBugReport").val(report);
+  report = "";
+  report += "Benchmark: " + serieId;
+  report += "\r\n\r\n";
+  report += "Compare: " + compareId;
+  report += "\r\n";
+  if (c.description) report += "Description: " + c.description + "\r\n\r\n";
+  report += "Compare analysis details:";
+  report += "\r\n";
+  if (serie.state.compares[compareId].indexOf("similar") !== -1)
+    report += "- status: similar";
+  else if (serie.state.compares[compareId].indexOf("lower") !== -1)
+    report += "- status: lower";
+  else if (serie.state.compares[compareId].indexOf("better") !== -1)
+    report += "- status: better";
+  report += "\r\n";
+  report += "- my value: " + c.result.myValue;
+  report += "\r\n";
+  report += "- compare value: " + c.result.compareValue;
+  report += "\r\n";
+  report += "- raw difference: ";
+  if (c.result.diff > 0) report += "+";
   report += c.result.diff;
-  report += '\r\n';
-  report += '- ratio: '
+  report += "\r\n";
+  report += "- ratio: ";
   if (c.result.diff == 0) {
-    report += '0%';
+    report += "0%";
   } else {
-    if (c.result.diff > 0)
-      report += '+';
-    report += p.toFixed(2) + '%';
+    if (c.result.diff > 0) report += "+";
+    report += p.toFixed(2) + "%";
   }
-  report += '\r\n\r\n';
-  report += 'Links:';
-  report += '\r\n';
-  report += '- benchmark: ' + danaUrl + '/serie?' + projectId + '?' + encodeURIComponent(serieId);
-  report += '\r\n';
-  report += '- project compare status: ' + danaUrl + '/' + projectId + '/status' + compareId;
-  report += '\r\n';
-  report += '- dana instance: ' + danaUrl;
-  $('#proposalForBugReport').val(report);
-  $('#myModalAddBugLink').modal();
+  report += "\r\n\r\n";
+  report += "Links:";
+  report += "\r\n";
+  report +=
+    "- benchmark: " +
+    danaUrl +
+    "/serie?" +
+    projectId +
+    "?" +
+    encodeURIComponent(serieId);
+  report += "\r\n";
+  report +=
+    "- project compare status: " +
+    danaUrl +
+    "/" +
+    projectId +
+    "/status" +
+    compareId;
+  report += "\r\n";
+  report += "- dana instance: " + danaUrl;
+  $("#proposalForBugReport").val(report);
+  $("#myModalAddBugLink").modal();
 }
 
-$('#modalSaveBugLink').click(function () {
-  var bugLink = $('#AddBugLink_Link').val();
-  alert('serieUpdateBugLink ' + projectId + ' ' + serieId + ' ' + bugLink + ' ' + modalBugLinkCompareId);
-  socket.emit('serieUpdateBugLink', {
+$("#modalSaveBugLink").click(function () {
+  var bugLink = $("#AddBugLink_Link").val();
+  alert(
+    "serieUpdateBugLink " +
+      projectId +
+      " " +
+      serieId +
+      " " +
+      bugLink +
+      " " +
+      modalBugLinkCompareId
+  );
+  socket.emit("serieUpdateBugLink", {
     projectId: projectId,
     serieId: serieId,
     bugLink: bugLink,
-    compareId: modalBugLinkCompareId
+    compareId: modalBugLinkCompareId,
   });
   if (serie.bugLink === undefined) {
     serie.bugLink = {};
@@ -2059,18 +2197,16 @@ $('#modalSaveBugLink').click(function () {
       serie.bugLink.compares = {};
     }
   }
-  if (modalBugLinkCompareId === undefined)
-    serie.bugLink.series = bugLink;
-  else
-    serie.bugLink.compares[modalBugLinkCompareId] = bugLink;
+  if (modalBugLinkCompareId === undefined) serie.bugLink.series = bugLink;
+  else serie.bugLink.compares[modalBugLinkCompareId] = bugLink;
 });
-$('#modalCopySubjectClipboard').click(function() {
+$("#modalCopySubjectClipboard").click(function () {
   var copyText = document.getElementById("proposalSubjectForBugReport");
   copyText.select();
   document.execCommand("Copy");
-})
-$('#modalCopyClipboard').click(function() {
+});
+$("#modalCopyClipboard").click(function () {
   var copyText = document.getElementById("proposalForBugReport");
   copyText.select();
   document.execCommand("Copy");
-})
+});

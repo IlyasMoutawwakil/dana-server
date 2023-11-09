@@ -475,33 +475,15 @@ function apiAddBuild(apiData, hdl) {
 
 /** Get the default unit of IREE series. */
 function getSerieDefaultUnit(serieId) {
-  if (
-    serieId.indexOf(
-      "[compilation:module:component-size:total-dispatch-size]"
-    ) !== -1
-  ) {
-    return "bytes";
-  } else if (serieId.indexOf("[compilation:module:compilation-time]") !== -1) {
-    return "ms";
-  }
-  return "ns";
+  return "ms";
 }
 
 /** Get the default unit of samples uploaded by IREE. */
 function getSampleDefaultUnit(serieId) {
-  if (
-    serieId.indexOf(
-      "[compilation:module:component-size:total-dispatch-size]"
-    ) !== -1
-  ) {
-    return "bytes";
-  } else if (serieId.indexOf("[compilation:module:compilation-time]") !== -1) {
-    return "ms";
-  }
   return "ms";
 }
 
-function apiAddSerie(apiData, hdl, apiVersion) {
+function apiAddSerie(apiData, hdl) {
   let projectId;
   let serieId;
   let serieUnit;
@@ -520,15 +502,12 @@ function apiAddSerie(apiData, hdl, apiVersion) {
     return hdl("Invalid data, serieId is missing");
   }
   serieId = apiData.serieId;
-  if (apiVersion >= 2) {
-    if (apiData.serieUnit === undefined) {
-      return hdl("Invalid data, serieUnit is missing");
-    }
-    serieUnit = apiData.serieUnit;
-  } else {
-    // TODO: Temporary unit for IREE migration.
-    serieUnit = getSerieDefaultUnit(serieId);
+
+  if (apiData.serieUnit === undefined) {
+    return hdl("Invalid data, serieUnit is missing");
   }
+  serieUnit = apiData.serieUnit;
+
   let serieName = apiData.serieName;
   if (serieName === undefined) {
     serieName = serieId;
@@ -586,14 +565,6 @@ function apiAddSerie(apiData, hdl, apiVersion) {
   }
   if (analyse.benchmark) {
     serie.analyse.benchmark = analyse.benchmark;
-    if (apiVersion < 2) {
-      // Convert IREE milliseconds range to nanoseconds.
-      let range = serie.analyse.benchmark.range;
-      if (!range.toString().endsWith("%") && serieUnit == "ns") {
-        range = Math.floor(moduleUtils.unitConversion(range, "ms", "ns"));
-      }
-      serie.analyse.benchmark.range = range;
-    }
   }
   if (analyse.test) {
     serie.analyse.test = analyse.test;
@@ -634,7 +605,7 @@ function apiAddSerie(apiData, hdl, apiVersion) {
   return hdl();
 }
 
-function apiAddSample(apiData, hdl, apiVersion) {
+function apiAddSample(apiData, hdl) {
   let projectId;
   let serieId;
   let samples;
@@ -653,15 +624,12 @@ function apiAddSample(apiData, hdl, apiVersion) {
     return hdl("Invalid data, serieId is missing");
   }
   serieId = apiData.serieId;
-  if (apiVersion >= 2) {
-    if (apiData.sampleUnit === undefined) {
-      return hdl("Invalid data, sampleUnit is missing");
-    }
-    sampleUnit = apiData.sampleUnit;
-  } else {
-    // TODO: Temporary unit for IREE migration.
-    sampleUnit = getSampleDefaultUnit(serieId);
+
+  if (apiData.sampleUnit === undefined) {
+    return hdl("Invalid data, sampleUnit is missing");
   }
+  sampleUnit = apiData.sampleUnit;
+  
 
   if (apiData.sample === undefined && apiData.samples === undefined) {
     return hdl("Invalid data, sample or samples is missing");
@@ -1043,7 +1011,7 @@ function apiAddSample(apiData, hdl, apiVersion) {
   return hdl();
 }
 
-function apiGetBuild(apiData, hdl, apiVersion) {
+function apiGetBuild(apiData, hdl) {
   let projectId;
   let buildId;
 
@@ -1080,19 +1048,10 @@ function apiGetBuild(apiData, hdl, apiVersion) {
     }
     let sampleUnit = thisSeries.serieUnit;
     let result;
-    if (apiVersion >= 2) {
-      result = {
-        sampleUnit: sampleUnit,
-        sample: sample,
-      };
-    } else {
-      // TODO: Temporarily converting the unit for migration.
-      if (sampleUnit === "ns") {
-        result = unitConversion(sample, sampleUnit, "ms");
-      } else {
-        result = sample;
-      }
-    }
+    result = {
+      sampleUnit: sampleUnit,
+      sample: sample,
+    };
     results[keys[ii]] = result;
   }
 
@@ -1733,15 +1692,8 @@ app.post("/apis/*", function (req, res, next) {
   next();
 });
 
-app.post("/apis/:apiVersion(v\\d+)?/:apiAction", function (req, res, next) {
+app.post("/apis/:apiAction", function (req, res, next) {
   let apiName = req.params.apiAction;
-  let apiVersion = req.params.apiVersion;
-  if (apiVersion === undefined) {
-    apiVersion = 1;
-  } else {
-    // Trim the 'v' from the head and convert to int.
-    apiVersion = parseInt(apiVersion.substring(1));
-  }
   let data = req.body;
   if (global.debug) console.log("Got a request", apiName, data);
   if (apiName === "addBuild") {
@@ -1763,8 +1715,7 @@ app.post("/apis/:apiVersion(v\\d+)?/:apiAction", function (req, res, next) {
           return res.send(err);
         }
         return res.send("addSerie successfull\n");
-      },
-      apiVersion
+      }
     );
     return;
   }
@@ -1777,8 +1728,7 @@ app.post("/apis/:apiVersion(v\\d+)?/:apiAction", function (req, res, next) {
           return res.send(err);
         }
         return res.send("addSample successfull\n");
-      },
-      apiVersion
+      }
     );
     return;
   }
@@ -1788,16 +1738,9 @@ app.post("/apis/:apiVersion(v\\d+)?/:apiAction", function (req, res, next) {
   res.send(err);
 });
 
-app.get("/apis/:apiVersion(v\\d+)?/getBuild", function (req, res, next) {
+app.get("/apis/getBuild", function (req, res, next) {
   let data = req.body;
   if (global.debug) console.log("Got a request", "getBuild", data);
-  let apiVersion = req.params.apiVersion;
-  if (apiVersion === undefined) {
-    apiVersion = 1;
-  } else {
-    // Trim the 'v' from the head and convert to int.
-    apiVersion = parseInt(apiVersion.substring(1));
-  }
   apiGetBuild(
     data,
     function end(results, err) {
@@ -1806,8 +1749,7 @@ app.get("/apis/:apiVersion(v\\d+)?/getBuild", function (req, res, next) {
         return res.send(err);
       }
       return res.json(results);
-    },
-    apiVersion
+    }
   );
 });
 
